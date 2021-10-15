@@ -1,0 +1,13 @@
+codefromstrings = false
+runreport = true
+deletestats = false
+modules = {
+    ['testcase.exit'] = 'lib/exit.lua',
+    ['testcase.filesystem'] = 'lib/filesystem.lua',
+    ['testcase.getopts'] = 'lib/getopts.lua',
+    ['testcase.iohook'] = 'lib/iohook.lua',
+    ['testcase.printer'] = 'lib/printer.lua',
+    ['testcase.registry'] = 'lib/registry.lua',
+    ['testcase.runner'] = 'lib/runner.lua',
+    ['testcase.testcase'] = 'lib/testcase.lua',
+}
