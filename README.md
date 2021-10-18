@@ -25,7 +25,7 @@ local assert = require('assertex')
 -- require('luacov')
 
 -- Setup and Teardown
--- following names are reserved as setup and teardown functions;
+-- following names are reserved for setup and teardown functions;
 --
 --   before_all
 --   after_all
