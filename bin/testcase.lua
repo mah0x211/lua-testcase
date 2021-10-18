@@ -70,7 +70,10 @@ local function loadfiles(files)
     for _, filename in ipairs(files) do
         local ok, err = dofile(filename)
         if not ok then
-            errfiles[#errfiles + 1] = {filename, err}
+            errfiles[#errfiles + 1] = {
+                filename,
+                err,
+            }
         end
     end
 

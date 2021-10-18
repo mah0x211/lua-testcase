@@ -15,7 +15,9 @@ local function test_printer()
                 stdout:setvbuf(...)
             end,
             write = function(_, ...)
-                for _, v in ipairs({...}) do
+                for _, v in ipairs({
+                    ...,
+                }) do
                     argv[#argv + 1] = v
                 end
             end,
@@ -46,12 +48,25 @@ local function test_printer()
         -- test that arguments is not formatted if first argument is not format string
         argv = {}
         p('non-format string %%', 'hello', 'world')
-        assert.equal(argv,
-                     {'', 'non-format string %%', '', 'hello', '', 'world'})
+        assert.equal(argv, {
+            '',
+            'non-format string %%',
+            '',
+            'hello',
+            '',
+            'world',
+        })
 
         argv = {}
         p(1, 'non-format string %s', 'hello')
-        assert.equal(argv, {'', '1', '', 'non-format string %s', '', 'hello'})
+        assert.equal(argv, {
+            '',
+            '1',
+            '',
+            'non-format string %s',
+            '',
+            'hello',
+        })
 
         -- test that print each line with prefix, and suffix to last line
         p = printer.new('=prefix=', '=suffix=')
@@ -82,11 +97,16 @@ local function test_printer()
         -- test that throw error with invalid arguments
         for _, v in ipairs({
             {
-                args = {true},
+                args = {
+                    true,
+                },
                 match = '#1 (nil or string',
             },
             {
-                args = {'', true},
+                args = {
+                    '',
+                    true,
+                },
                 match = '#2 (nil or string',
             },
         }) do

@@ -15,7 +15,9 @@ local function test_iohook()
         local hookargs
         local hookfn = function(...)
             call_hookfn = call_hookfn + 1
-            hookargs = {...}
+            hookargs = {
+                ...,
+            }
         end
         local startfn = function()
             call_startfn = call_startfn + 1
@@ -34,19 +36,28 @@ local function test_iohook()
         for i, v in ipairs({
             {
                 func = print,
-                args = {'call', 'print'},
+                args = {
+                    'call',
+                    'print',
+                },
             },
             {
                 func = function(...)
                     io.stdout:write(...)
                 end,
-                args = {'call', 'stdout:write'},
+                args = {
+                    'call',
+                    'stdout:write',
+                },
             },
             {
                 func = function(...)
                     io.stderr:write(...)
                 end,
-                args = {'call', 'stderr:write'},
+                args = {
+                    'call',
+                    'stderr:write',
+                },
             },
         }) do
             hookargs = nil
@@ -93,7 +104,9 @@ local function test_iohook()
             assert.equal(call_startfn, 1)
             assert.equal(call_hookfn, i)
             assert.equal(call_endfn, 0)
-            assert.equal(hookargs, {'unblocked'})
+            assert.equal(hookargs, {
+                'unblocked',
+            })
         end
 
         -- test that endfn is called when unhooked
@@ -112,7 +125,9 @@ local function test_iohook()
         -- test that throw error with invalid argument
         for _, v in ipairs({
             {
-                args = {true},
+                args = {
+                    true,
+                },
                 match = '#1 (function expected, got boolean',
             },
             {

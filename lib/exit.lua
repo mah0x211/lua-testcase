@@ -32,8 +32,12 @@ end
 
 --- dummy_exit throws error with arguments
 local function dummy_exit(...)
-    EXIT_ARGS = {...}
-    local arr = {'OS_EXIT'}
+    EXIT_ARGS = {
+        ...,
+    }
+    local arr = {
+        'OS_EXIT',
+    }
     for i, v in ipairs(EXIT_ARGS) do
         arr[i + 1] = tostring(v)
     end

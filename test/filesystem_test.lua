@@ -43,7 +43,9 @@ local function test_getfiles()
     -- test that returns files only contains pathname
     files, err = fs.getfiles('./test/testall.lua')
     assert(not err, err)
-    assert.equal(files, {'./test/testall.lua'})
+    assert.equal(files, {
+        './test/testall.lua',
+    })
 
     -- test that returns nil if pathname is not found
     files, err = fs.getfiles('./foobarbaz')
