@@ -37,7 +37,10 @@ local USAGE = [[
 testcase - a small helper tool to run the test files
 
 Usage:
-  testcase <pathname>
+  testcase [--coverage] <pathname>
+
+Options:
+  --coverage    do code coverage analysis with `luacov`
 ]]
 
 local function exit(code, msg, ...)
@@ -70,6 +73,11 @@ do
     local opts = getopts(ARGV)
     if not opts[1] then
         exit(-1, USAGE);
+    elseif opts['--coverage'] then
+        local ok, err = pcall(require, 'luacov')
+        if not ok then
+            exit(-1, 'failed to load luacov module: %s', err)
+        end
     end
 
     -- confirm pathname
