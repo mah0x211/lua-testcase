@@ -46,6 +46,10 @@ local function trim_cwd(pathname)
     return pathname
 end
 
+--- walkdir scans the given pathname recursively and push the name of lua file
+--- to a files
+---@param files table<number, string>
+---@param pathname string
 local function walkdir(files, pathname)
     local ents, err = readdir(pathname)
 

@@ -22,7 +22,7 @@
 --- file scope variables
 local ipairs = ipairs
 local pcall = pcall
-local loadfile = loadfile
+local eval = require('testcase.eval')
 local osexit = require('testcase.exit').exit
 local exists = require('path').exists
 local print = require('testcase.printer').new(nil, '\n')
@@ -47,20 +47,6 @@ local function exit(code, msg, ...)
     osexit(code)
 end
 
---- dofile loads filename and executes it
---- @param filename string
---- @return boolean ok
---- @return string error
-local function dofile(filename)
-    local f, err = loadfile(filename, 't')
-
-    if err then
-        return false, err
-    end
-
-    return pcall(f)
-end
-
 --- loadfiles loads test files and runs it once for initialization
 --- @param files table<number, string>
 --- @return table<number, table<string, string>> errfiles
@@ -68,7 +54,7 @@ local function loadfiles(files)
     local errfiles = {}
 
     for _, filename in ipairs(files) do
-        local ok, err = dofile(filename)
+        local ok, err = eval(filename)
         if not ok then
             errfiles[#errfiles + 1] = {
                 filename,
