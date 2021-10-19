@@ -1,6 +1,7 @@
 local dofile = dofile
 
 for _, pathname in ipairs({
+    'test/eval_test.lua',
     'test/exit_test.lua',
     'test/filesystem_test.lua',
     'test/getopts_test.lua',

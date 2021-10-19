@@ -30,6 +30,7 @@ local function test_getfiles()
     assert(not err, err)
     assert.equal(files, {
         './example/example_test.lua',
+        './test/eval_test.lua',
         './test/exit_test.lua',
         './test/filesystem_test.lua',
         './test/getopts_test.lua',
