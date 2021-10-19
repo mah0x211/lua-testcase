@@ -24,8 +24,8 @@ local pairs = pairs
 local sort = table.sort
 local getinfo = debug.getinfo
 local string = require('stringex')
+local trim_prefix = string.trim_prefix
 local format = string.format
-local sub = string.sub
 local fs = require('testcase.filesystem')
 
 local function cmp_name(a, b)
@@ -114,7 +114,7 @@ local function add(name, func)
 
     local info = getinfo(func, 'nS')
     local lineno = info.linedefined
-    local stat, err = fs.getstat(sub(info.source, 2))
+    local stat, err = fs.getstat(trim_prefix(info.source, '@'))
 
     if not stat then
         return format('failed to get fileinfo %s', err or '')
