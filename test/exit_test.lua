@@ -15,7 +15,9 @@ local function test_exit()
     assert.match(err, 'OS_EXIT%s+exit hook', false)
 
     -- test that args contains arguments of exit
-    assert.equal(testcase_exit.getargs(), {'exit hook'})
+    assert.equal(testcase_exit.getargs(), {
+        'exit hook',
+    })
 end
 
 test_exit()

@@ -22,7 +22,7 @@
 --- file scope variables
 local ipairs = ipairs
 local pcall = pcall
-local loadfile = loadfile
+local eval = require('testcase.eval')
 local osexit = require('testcase.exit').exit
 local exists = require('path').exists
 local print = require('testcase.printer').new(nil, '\n')
@@ -37,7 +37,10 @@ local USAGE = [[
 testcase - a small helper tool to run the test files
 
 Usage:
-  testcase <pathname>
+  testcase [--coverage] <pathname>
+
+Options:
+  --coverage    do code coverage analysis with `luacov`
 ]]
 
 local function exit(code, msg, ...)
@@ -47,20 +50,6 @@ local function exit(code, msg, ...)
     osexit(code)
 end
 
---- dofile loads filename and executes it
---- @param filename string
---- @return boolean ok
---- @return string error
-local function dofile(filename)
-    local f, err = loadfile(filename, 't')
-
-    if err then
-        return false, err
-    end
-
-    return pcall(f)
-end
-
 --- loadfiles loads test files and runs it once for initialization
 --- @param files table<number, string>
 --- @return table<number, table<string, string>> errfiles
@@ -68,9 +57,12 @@ local function loadfiles(files)
     local errfiles = {}
 
     for _, filename in ipairs(files) do
-        local ok, err = dofile(filename)
+        local ok, err = eval(filename)
         if not ok then
-            errfiles[#errfiles + 1] = {filename, err}
+            errfiles[#errfiles + 1] = {
+                filename,
+                err,
+            }
         end
     end
 
@@ -81,6 +73,11 @@ do
     local opts = getopts(ARGV)
     if not opts[1] then
         exit(-1, USAGE);
+    elseif opts['--coverage'] then
+        local ok, err = pcall(require, 'luacov')
+        if not ok then
+            exit(-1, 'failed to load luacov module: %s', err)
+        end
     end
 
     -- confirm pathname

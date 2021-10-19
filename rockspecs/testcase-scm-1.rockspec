@@ -29,6 +29,7 @@ build = {
     },
     modules = {
         ['testcase'] = 'lib/testcase.lua',
+        ['testcase.eval'] = 'lib/eval.lua',
         ['testcase.exit'] = 'lib/exit.lua',
         ['testcase.filesystem'] = 'lib/filesystem.lua',
         ['testcase.getopts'] = 'lib/getopts.lua',

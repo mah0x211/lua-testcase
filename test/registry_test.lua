@@ -48,11 +48,16 @@ local function test_registry_add()
     -- test that returns error with invalid arguments
     for _, v in ipairs({
         {
-            args = {true},
+            args = {
+                true,
+            },
             match = '#1 (string expected, got boolean)',
         },
         {
-            args = {'hello', {}},
+            args = {
+                'hello',
+                {},
+            },
             match = '#2 (function expected, got table)',
         },
     }) do

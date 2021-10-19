@@ -83,13 +83,19 @@ local function printline(self, s, ...)
     local argv
 
     if nparam == 0 then
-        argv = {s, ...}
+        argv = {
+            s,
+            ...,
+        }
     else
         local ok, res = pcall(format, s, select_head(nparam, ...))
         if not ok then
             error(res, 2)
         end
-        argv = {res, select_tail(nparam + 1, ...)}
+        argv = {
+            res,
+            select_tail(nparam + 1, ...),
+        }
     end
 
     for i = 1, narg do
