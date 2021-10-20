@@ -13,6 +13,19 @@ luarocks install testcase
 
 ## Usage
 
+```
+testcase - a small helper tool to run the test files
+
+Usage:
+  testcase [--coverage] [--checkall] <pathname>
+
+Options:
+  --coverage    do code coverage analysis with `luacov`
+  --checkall    any file with a `.lua` extension will be evaluated as a test file.
+```
+
+### How to write a test
+
 describe a test like a [example/example_test.lua](example/example_test.lua), and execute the installed `testcase ./example/` command.
 
 the `testcase` command searches for a test file with the suffix `_test.lua` in the specified `pathname` and executes the test file. if the `pathname` is a file, the `testcase` command will execute the test file.
@@ -112,4 +125,33 @@ example/example_test.lua: 2 test cases
 
 ### Total: 1 successes, 1 failures (110.459 us)
 
+```
+
+
+### Testing private functions
+
+testcase can be used to tests private functions with the inline option `lua-testcase: <boolean>`.
+
+the inline option is enabled by putting `lua-testcase: true` in the one-line comment of Lua. To disable it, specify `false`. Then, in the next line of the inline option, declare the placeholder `local testcase = {}`.
+
+when you run the testcase command, replace the placeholder with `local testcase = require(‘testcase')` and run the test. When you run the testcase command, the placeholder will be replaced with `local testcase = require('testcase)` and the test will be executed.
+
+
+```lua
+local assert = require('assertex')
+
+-- test private functions using the `lua-testcase: <boolean>` inline option.
+-- and be sure to declare the placeholder `local testcase = {}` at the next line.
+-- lua-testcase: true
+local testcase = {}
+
+function testcase.inline_hello()
+    print('do inline hello')
+end
+
+function testcase.inline_world()
+    assert.throws(function()
+        print('do inline world')
+    end)
+end
 ```
