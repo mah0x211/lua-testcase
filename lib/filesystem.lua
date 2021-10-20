@@ -48,9 +48,10 @@ end
 
 --- walkdir scans the given pathname recursively and push the name of lua file
 --- to a files
----@param files table<number, string>
----@param pathname string
-local function walkdir(files, pathname)
+--- @param files table<number, string>
+--- @param pathname string
+--- @param suffix string
+local function walkdir(files, pathname, suffix)
     local ents, err = readdir(pathname)
 
     if err then
@@ -68,23 +69,24 @@ local function walkdir(files, pathname)
             if err then
                 return err
             elseif info.type == 'dir' then
-                err = walkdir(files, fullname)
+                err = walkdir(files, fullname, suffix)
                 if err then
                     return err
                 end
-            elseif info.type == 'reg' and has_suffix(ent, '_test.lua') then
+            elseif info.type == 'reg' and has_suffix(ent, suffix) then
                 files[#files + 1] = trim_cwd(fullname)
             end
         end
     end
 end
 
---- getfiles searche for the file with suffix '_test.lua' in pathname
---- and returns a list of files
----@param pathname string
----@return table files
----@return string error
-local function getfiles(pathname)
+--- getfiles searche for the file with suffix '_test.lua' or specified `suffix`
+--- in pathname and returns a list of files
+--- @param pathname string
+--- @param suffix string
+--- @return table files
+--- @return string error
+local function getfiles(pathname, suffix)
     local files = {}
     local info, err = stat(pathname)
 
@@ -94,7 +96,7 @@ local function getfiles(pathname)
         files[#files + 1] = trim_cwd(pathname)
         return files
     elseif info.type == 'dir' then
-        err = walkdir(files, trim_suffix(pathname, '/'))
+        err = walkdir(files, trim_suffix(pathname, '/'), suffix or '_test.lua')
         if err then
             return nil, err
         end

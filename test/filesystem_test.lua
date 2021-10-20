@@ -51,6 +51,19 @@ local function test_getfiles()
     -- test that returns nil if pathname is not found
     files, err = fs.getfiles('./foobarbaz')
     assert(not err, err)
+
+    -- test that returns list of a file with suffix '.md'
+    files, err = fs.getfiles('.', '.md')
+    assert(not err, err)
+    assert.equal(files, {
+        './README.md',
+    })
+
+    -- test that throws an error with invalid suffix
+    err = assert.throws(function()
+        fs.getfiles('.', 1)
+    end)
+    assert.match(err, 'string expected, got number')
 end
 
 local function test_getstat()

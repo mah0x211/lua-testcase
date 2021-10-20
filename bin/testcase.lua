@@ -37,11 +37,12 @@ local USAGE = [[
 testcase - a small helper tool to run the test files
 
 Usage:
-  testcase [--help] [--coverage] <pathname>
+  testcase [--help] [--coverage] [--checkall] <pathname>
 
 Options:
   --help        show this help message and exit
   --coverage    do code coverage analysis with `luacov`
+  --checkall    any file with a `.lua` extension will be evaluated as a test file
 ]]
 
 local function exit(code, msg, ...)
@@ -94,7 +95,7 @@ do
     end
 
     -- luacheck: ignore err
-    local files, err = getfiles(pathname)
+    local files, err = getfiles(pathname, opts['--checkall'] and '.lua')
     if err then
         exit(-1, 'failed to get test files from %q: %s', pathname, err)
     end
