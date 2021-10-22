@@ -22,6 +22,7 @@
 -- file scope variables
 io.stderr:setvbuf('no')
 io.stdout:setvbuf('no')
+local concat = table.concat
 local error = error
 local stdout = io.stdout
 local type = type
@@ -98,23 +99,27 @@ local function printline(self, s, ...)
         }
     end
 
+    -- stringify all arguments
     for i = 1, narg do
-        s = is_string(argv[i]) and argv[i] or tostring(argv[i])
-        local head = 1
-        local tail = find(s, NEWLINE)
-
-        -- add a prefix to each line
-        while tail do
-            local line = sub(s, head, tail - 1)
-            stdout:write(prefix, line, '\n')
-            head = tail + 1
-            tail = find(s, NEWLINE, head)
+        if not is_string(argv[i]) then
+            argv[i] = tostring(argv[i])
         end
+    end
 
-        if head <= #s then
-            local line = sub(s, head)
-            stdout:write(prefix, line)
-        end
+    s = concat(argv)
+    local pos = 1
+    local head, tail = find(s, NEWLINE)
+    -- add a prefix to each line
+    while head do
+        local line = sub(s, pos, head - 1)
+        stdout:write(prefix, line, '\n')
+        pos = tail + 1
+        head, tail = find(s, NEWLINE, pos)
+    end
+
+    if pos <= #s then
+        local line = sub(s, pos)
+        stdout:write(prefix, line)
     end
 
     -- add a suffix
