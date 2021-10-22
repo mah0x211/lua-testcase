@@ -34,15 +34,7 @@ local function test_printer()
           1, true, false)
         assert.equal(argv, {
             '',
-            'format value "foo" ',
-            '',
-            'and print following values as a string: ',
-            '',
-            '1',
-            '',
-            'true',
-            '',
-            'false',
+            'format value "foo" and print following values as a string: 1truefalse',
         })
 
         -- test that arguments is not formatted if first argument is not format string
@@ -50,22 +42,14 @@ local function test_printer()
         p('non-format string %%', 'hello', 'world')
         assert.equal(argv, {
             '',
-            'non-format string %%',
-            '',
-            'hello',
-            '',
-            'world',
+            'non-format string %%helloworld',
         })
 
         argv = {}
         p(1, 'non-format string %s', 'hello')
         assert.equal(argv, {
             '',
-            '1',
-            '',
-            'non-format string %s',
-            '',
-            'hello',
+            '1non-format string %shello',
         })
 
         -- test that print each line with prefix, and suffix to last line
