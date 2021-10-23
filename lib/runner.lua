@@ -29,7 +29,7 @@ local timer = require('testcase.timer')
 local printer = require('testcase.printer')
 local print = printer.new(nil, '\n')
 local printf = printer.new()
-local printCode = printer.new('  >     ', '\n')
+local printCode = printer.new('  >     ', '\n', false)
 local iohook = require('testcase.iohook')
 local HR = string.rep('-', 80)
 
