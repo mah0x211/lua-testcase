@@ -36,10 +36,11 @@ local select_len = require('selectex').len
 local select_head = require('selectex').head
 local select_tail = require('selectex').tail
 local is_string = require('isa').String
+local is_boolean = require('isa').Boolean
 -- constants
 local NEWLINE = '\r?\n'
 
-local function has_formatter(s)
+local function parse_format(s)
     if not is_string(s) then
         return 0
     end
@@ -76,27 +77,33 @@ local function has_formatter(s)
     return nparam
 end
 
-local function printline(self, s, ...)
-    local prefix = self.prefix or ''
-    local suffix = self.suffix
-    local nparam = has_formatter(s)
-    local narg = select_len(...) - nparam + 1
-    local argv
+--- vstringify converts all arguments after noformat to strings and returns the
+--- concatenated strings.
+--- @param doformat boolean
+--- @param s string
+--- @return string
+local function vstringify(doformat, s, ...)
+    local argv = {
+        s,
+        ...,
+    }
+    local narg = select_len(...) + 1
 
-    if nparam == 0 then
-        argv = {
-            s,
-            ...,
-        }
-    else
-        local ok, res = pcall(format, s, select_head(nparam, ...))
-        if not ok then
-            error(res, 2)
+    -- format arguments with s as the format string
+    if doformat then
+        local nparam = parse_format(s)
+
+        if nparam > 0 then
+            narg = narg - nparam
+            local ok, res = pcall(format, s, select_head(nparam, ...))
+            if not ok then
+                error(res, 3)
+            end
+            argv = {
+                res,
+                select_tail(nparam + 1, ...),
+            }
         end
-        argv = {
-            res,
-            select_tail(nparam + 1, ...),
-        }
     end
 
     -- stringify all arguments
@@ -106,20 +113,32 @@ local function printline(self, s, ...)
         end
     end
 
-    s = concat(argv)
-    local pos = 1
-    local head, tail = find(s, NEWLINE)
-    -- add a prefix to each line
-    while head do
-        local line = sub(s, pos, head - 1)
-        stdout:write(prefix, line, '\n')
-        pos = tail + 1
-        head, tail = find(s, NEWLINE, pos)
-    end
+    return concat(argv)
+end
 
-    if pos <= #s then
-        local line = sub(s, pos)
-        stdout:write(prefix, line)
+local function printline(self, s, ...)
+    local prefix = self.prefix
+    local suffix = self.suffix
+
+    s = vstringify(self.doformat, s, ...)
+
+    if not prefix then
+        stdout:write(s)
+    else
+        local pos = 1
+        local head, tail = find(s, NEWLINE)
+        -- add a prefix to each line
+        while head do
+            local line = sub(s, pos, head - 1)
+            stdout:write(prefix, line, '\n')
+            pos = tail + 1
+            head, tail = find(s, NEWLINE, pos)
+        end
+
+        if pos <= #s then
+            local line = sub(s, pos)
+            stdout:write(prefix, line)
+        end
     end
 
     -- add a suffix
@@ -131,19 +150,24 @@ end
 --- new println
 --- @param prefix string
 --- @param suffix string
+--- @param doformat boolean default true
 --- @return table println
-local function new(prefix, suffix)
+local function new(prefix, suffix, doformat)
     if prefix ~= nil and not is_string(prefix) then
         error(format('invalid argument #1 (nil or string expected, got %s',
                      type(prefix)), 2)
     elseif suffix ~= nil and not is_string(suffix) then
         error(format('invalid argument #2 (nil or string expected, got %s',
                      type(suffix)), 2)
+    elseif doformat ~= nil and not is_boolean(doformat) then
+        error(format('invalid argument #3 (nil or boolean expected, got %s',
+                     type(doformat)), 2)
     end
 
     return setmetatable({
         prefix = prefix,
         suffix = suffix,
+        doformat = doformat == nil or doformat == true or false,
     }, {
         __call = printline,
     })
@@ -151,4 +175,6 @@ end
 
 return {
     new = new,
+    parse_format = parse_format,
+    vstringify = vstringify,
 }
