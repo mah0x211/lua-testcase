@@ -102,8 +102,7 @@ static int elapsed_lua(lua_State *L)
 {
     testcase_timer_t *t =
         (testcase_timer_t *)luaL_checkudata(L, 1, TESTCASE_TIMER_MT);
-    uint64_t ns      = 0;
-    uint64_t elapsed = 0;
+    uint64_t ns = 0;
 
     if (getnsec(&ns) == -1) {
         lua_pushnil(L);
