@@ -39,6 +39,7 @@ local function test_getfiles()
         './test/registry_test.lua',
         './test/runner_test.lua',
         './test/testcase_test.lua',
+        './test/timer_test.lua',
     })
 
     -- test that returns files only contains pathname

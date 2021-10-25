@@ -78,32 +78,36 @@ static int nsec2utime(lua_State *L, uint64_t ns)
         // min
         lua_pushnumber(L, (long double)ns / min);
         lua_pushliteral(L, "%.3f m");
+        lua_pushliteral(L, "m");
     } else if (ns >= sec) {
         // second
         lua_pushnumber(L, (long double)ns / sec);
         lua_pushliteral(L, "%.3f s");
+        lua_pushliteral(L, "s");
     } else if (ns >= ms) {
         // millisecond
         lua_pushnumber(L, (long double)ns / ms);
         lua_pushliteral(L, "%.3f ms");
+        lua_pushliteral(L, "ms");
     } else if (ns >= us) {
         // microsecond
         lua_pushnumber(L, (long double)ns / us);
         lua_pushliteral(L, "%.3f us");
+        lua_pushliteral(L, "us");
     } else {
         // nanosecond
         lua_pushnumber(L, (long double)ns);
         lua_pushliteral(L, "%d ns");
+        lua_pushliteral(L, "ns");
     }
-    return 2;
+    return 3;
 }
 
 static int elapsed_lua(lua_State *L)
 {
     testcase_timer_t *t =
         (testcase_timer_t *)luaL_checkudata(L, 1, TESTCASE_TIMER_MT);
-    uint64_t ns      = 0;
-    uint64_t elapsed = 0;
+    uint64_t ns = 0;
 
     if (getnsec(&ns) == -1) {
         lua_pushnil(L);
