@@ -21,6 +21,7 @@
 --
 --- file scope variables
 require('testcase.exit')
+local collectgarbage = collectgarbage
 local pcall = pcall
 local ipairs = ipairs
 local chdir = require('testcase.filesystem').chdir
@@ -44,6 +45,7 @@ local HR = string.rep('-', 80)
 --- @return number elapsed
 --- @return string elapsed_format
 local function call(t, func, hookfn, hook_startfn, hook_endfn)
+    collectgarbage('collect')
     iohook.hook(hookfn, hook_startfn, hook_endfn)
     t:start()
     local ok, err = pcall(func)

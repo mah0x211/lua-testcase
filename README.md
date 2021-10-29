@@ -30,6 +30,11 @@ describe a test like a [example/example_test.lua](example/example_test.lua), and
 
 the `testcase` command searches for a test file with the suffix `_test.lua` in the specified `pathname` and executes the test file. if the `pathname` is a file, the `testcase` command will execute the test file.
 
+the test file must be named with the suffix `_test.lua`. if it does not have this suffix, it will be executed as a test file for [testing private functions](#testing-private-functions).
+
+
+**NOTE**: a `collectgarbage('collect')` is always executed before executing user-defined functions.
+
 ```lua
 local testcase = require('testcase')
 local assert = require('assertex')
