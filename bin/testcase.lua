@@ -133,7 +133,7 @@ do
           nfailure, total, '\n')
 
     -- exit failure
-    if nfailure > 0 then
+    if nfailure > 0 or #errfiles > 0 then
         exit(-1)
     end
 end
