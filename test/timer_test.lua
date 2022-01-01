@@ -1,6 +1,7 @@
 local floor = math.floor
 local assert = require('assertex')
 local gettimeofday = require('process').gettimeofday
+local sleep = require('process').sleep
 local timer = require('testcase.timer')
 
 local function val2ns(v, unit)
@@ -42,17 +43,21 @@ end
 
 local function test_elapsed()
     local t = timer.new()
+    t:start()
+    t:stop()
+    -- sleep 1 sec
+    sleep(1)
 
     -- test that timer:elpased() returns a value of clock_gettime
     local v, fmt, unit = assert(t:elapsed())
     assert.is_unsigned(v)
-    assert.equal(fmt, '%.3f m')
-    assert.equal(unit, 'm')
+    assert.equal(fmt, '%.3f s')
+    assert.equal(unit, 's')
 
     -- test that the elapsed time increases
     local prev = val2ns(v, unit)
     v, _, unit = assert(t:elapsed())
-    assert.equal(unit, 'm')
+    assert.equal(unit, 's')
     v = val2ns(v, unit)
     assert.greater(v, prev)
 
