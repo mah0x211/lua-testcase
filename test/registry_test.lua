@@ -1,6 +1,6 @@
 require('luacov')
 local unpack = unpack or table.unpack
-local assert = require('assertex')
+local assert = require('assert')
 local before_all = function()
 end
 local before_each = function()

@@ -1,6 +1,6 @@
 require('luacov')
 local getcwd = require('process').getcwd
-local assert = require('assertex')
+local assert = require('assert')
 local CWD = assert(getcwd())
 
 local function test_chdir()

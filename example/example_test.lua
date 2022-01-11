@@ -1,5 +1,5 @@
 local testcase = require('testcase')
-local assert = require('assertex')
+local assert = require('assert')
 
 -- measure code coverage with luacov module
 -- require('luacov')

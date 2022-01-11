@@ -1,6 +1,6 @@
 require('luacov')
 local pcall = pcall
-local assert = require('assertex')
+local assert = require('assert')
 
 local function test_runner()
     local fs = require('testcase.filesystem')

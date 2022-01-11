@@ -1,6 +1,6 @@
 require('luacov')
 local unpack = unpack or table.unpack
-local assert = require('assertex')
+local assert = require('assert')
 local printer = require('testcase.printer')
 
 local function test_new()

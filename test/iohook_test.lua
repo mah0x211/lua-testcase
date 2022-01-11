@@ -1,7 +1,7 @@
 require('luacov')
 local pcall = pcall
 local unpack = unpack or table.unpack
-local assert = require('assertex')
+local assert = require('assert')
 
 local function test_iohook()
     local print_bk = _G.print

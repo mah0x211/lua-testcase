@@ -1,5 +1,5 @@
 local floor = math.floor
-local assert = require('assertex')
+local assert = require('assert')
 local gettimeofday = require('process').gettimeofday
 local sleep = require('process').sleep
 local timer = require('testcase.timer')

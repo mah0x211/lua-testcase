@@ -13,7 +13,7 @@ description = {
 }
 dependencies = {
     "lua >= 5.1",
-    "mah0x211/assertex >= 0.1.0",
+    "mah0x211/assert >= 0.1.0",
     "mah0x211/isa ~> 0.1",
     "mah0x211/nosigpipe ~> 0.1",
     "mah0x211/path ~> 1.1",
