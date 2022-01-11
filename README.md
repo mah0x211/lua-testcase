@@ -37,7 +37,7 @@ the test file must be named with the suffix `_test.lua`. if it does not have thi
 
 ```lua
 local testcase = require('testcase')
-local assert = require('assertex')
+local assert = require('assert')
 
 -- measure code coverage with luacov module
 -- require('luacov')
@@ -143,7 +143,7 @@ when you run the testcase command, replace the placeholder with `local testcase 
 
 
 ```lua
-local assert = require('assertex')
+local assert = require('assert')
 
 -- test private functions using the `lua-testcase: <boolean>` inline option.
 -- and be sure to declare the placeholder `local testcase = {}` at the next line.

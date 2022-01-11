@@ -1,5 +1,5 @@
 require('luacov')
-local assert = require('assertex')
+local assert = require('assert')
 
 local function test_getopts()
     local getopts = require('testcase.getopts')

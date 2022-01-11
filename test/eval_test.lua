@@ -5,7 +5,7 @@ local date = os.date
 local remove = os.remove
 local tmpname = os.tmpname
 local open = io.open
-local assert = require('assertex')
+local assert = require('assert')
 local dump = require('dump')
 
 local function truncate(filename)

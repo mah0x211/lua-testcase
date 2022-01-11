@@ -1,6 +1,6 @@
 require('luacov')
 local exit = os.exit
-local assert = require('assertex')
+local assert = require('assert')
 
 local function test_exit()
     local testcase_exit = require('testcase.exit')
