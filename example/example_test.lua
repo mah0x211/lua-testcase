@@ -1,5 +1,8 @@
 local testcase = require('testcase')
-local assert = require('assert')
+
+-- The built-in assert function will be replaced by the lua-assert module.
+-- The name of the original assert function has been changed to _assert.
+-- local assert = require('assert')
 
 -- measure code coverage with luacov module
 -- require('luacov')

@@ -1,5 +1,3 @@
-local assert = require('assert')
-
 -- test private functions using the `lua-testcase: <boolean>` inline option.
 -- and be sure to declare the placeholder `local testcase = {}` at the next line.
 -- lua-testcase: true

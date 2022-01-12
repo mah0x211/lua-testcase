@@ -24,6 +24,11 @@ Options:
   --checkall    any file with a `.lua` extension will be evaluated as a test file.
 ```
 
+### Assertion module
+
+The original assert function will be renamed to `_G._assert` and the https://github.com/mah0x211/lua-assert module will be loaded into the global variable `assert`.
+
+
 ### How to write a test
 
 describe a test like a [example/example_test.lua](example/example_test.lua), and execute the installed `testcase ./example/` command.
@@ -37,7 +42,10 @@ the test file must be named with the suffix `_test.lua`. if it does not have thi
 
 ```lua
 local testcase = require('testcase')
-local assert = require('assert')
+
+-- The built-in assert function will be replaced by the lua-assert module.
+-- The name of the original assert function has been changed to _assert.
+-- local assert = require('assert')
 
 -- measure code coverage with luacov module
 -- require('luacov')
@@ -143,7 +151,9 @@ when you run the testcase command, replace the placeholder with `local testcase 
 
 
 ```lua
-local assert = require('assert')
+-- The built-in assert function will be replaced by the lua-assert module.
+-- The name of the original assert function has been changed to _assert.
+-- local assert = require('assert')
 
 -- test private functions using the `lua-testcase: <boolean>` inline option.
 -- and be sure to declare the placeholder `local testcase = {}` at the next line.
