@@ -19,6 +19,8 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 -- THE SOFTWARE.
 --
+_G._assert = _G.assert
+_G.assert = require('assert')
 local error = error
 local loadfile = loadfile
 local open = io.open
