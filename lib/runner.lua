@@ -24,6 +24,7 @@ require('testcase.exit')
 local collectgarbage = collectgarbage
 local pcall = pcall
 local ipairs = ipairs
+local getcwd = require('process').getcwd
 local chdir = require('testcase.filesystem').chdir
 local registry = require('testcase.registry')
 local timer = require('testcase.timer')
@@ -45,12 +46,17 @@ local HR = string.rep('-', 80)
 --- @return number elapsed
 --- @return string elapsed_format
 local function call(t, func, hookfn, hook_startfn, hook_endfn)
+    local cwd = assert(getcwd())
+
     collectgarbage('collect')
     iohook.hook(hookfn, hook_startfn, hook_endfn)
     t:start()
     local ok, err = pcall(func)
     local elapsed, fmt = t:stop()
     iohook.unhook()
+
+    local cerr = chdir(cwd)
+    assert(not cerr, cerr)
 
     return ok, err, elapsed, fmt
 end
