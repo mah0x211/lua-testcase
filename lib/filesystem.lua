@@ -68,13 +68,15 @@ local function walkdir(files, pathname, suffix)
 
             if err then
                 return err
-            elseif info.type == 'dir' then
-                err = walkdir(files, fullname, suffix)
-                if err then
-                    return err
+            elseif info then
+                if info.type == 'dir' then
+                    err = walkdir(files, fullname, suffix)
+                    if err then
+                        return err
+                    end
+                elseif info.type == 'reg' and has_suffix(ent, suffix) then
+                    files[#files + 1] = trim_cwd(fullname)
                 end
-            elseif info.type == 'reg' and has_suffix(ent, suffix) then
-                files[#files + 1] = trim_cwd(fullname)
             end
         end
     end
