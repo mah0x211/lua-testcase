@@ -74,15 +74,15 @@ end
 local function test_vstringify()
     -- test that returns all arguments as a single string without formatting
     assert.equal(printer.vstringify(false, 'foo %q baz', 'bar', 1, true, false),
-                 'foo %q bazbar1truefalse')
+                 'foo %q baz bar 1 true false')
 
     -- test that return string from arguments with formatting
     assert.equal(printer.vstringify(true, 'foo %q baz', 'bar', 1, true, false),
-                 'foo "bar" baz1truefalse')
+                 'foo "bar" baz 1 true false')
 
     -- test that return string from arguments without formatting
     assert.equal(printer.vstringify(true, 10, 'foo %q baz', 'bar', 1, true,
-                                    false), '10foo %q bazbar1truefalse')
+                                    false), '10 foo %q baz bar 1 true false')
 
     -- test that throws an error with invalid format string
     local err = assert.throws(function()
@@ -121,7 +121,7 @@ local function test_call_printline()
     argv = {}
     p('format %q ', 'foo', ' a b ', 1, true, false)
     assert.equal(argv, {
-        'format "foo"  a b 1truefalse',
+        'format "foo"   a b  1 true false',
     })
 
     -- test that print all arguments with prefix
@@ -131,7 +131,7 @@ local function test_call_printline()
     p('format %q ', 'foo', ' a b ', 1, true, false, 'with\n\nnewline\n')
     assert.equal(argv, {
         prefix,
-        'format "foo"  a b 1truefalsewith',
+        'format "foo"   a b  1 true false with',
         '\n',
         prefix,
         '',
@@ -148,7 +148,7 @@ local function test_call_printline()
     p('format %q ', 'foo', ' a b ', 1, true, false, 'with\n\nnewline\n')
     assert.equal(argv, {
         prefix,
-        'format "foo"  a b 1truefalsewith',
+        'format "foo"   a b  1 true false with',
         '\n',
         prefix,
         '',
@@ -166,7 +166,7 @@ local function test_call_printline()
     p('format %q ', 'foo', ' a b ', 1, true, false, 'with\n\nnewline\n')
     assert.equal(argv, {
         prefix,
-        'format %q foo a b 1truefalsewith',
+        'format %q  foo  a b  1 true false with',
         '\n',
         prefix,
         '',

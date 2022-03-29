@@ -113,7 +113,7 @@ local function vstringify(doformat, s, ...)
         end
     end
 
-    return concat(argv)
+    return concat(argv, ' ')
 end
 
 local function printline(self, s, ...)
