@@ -22,8 +22,9 @@
 --- file scope variables
 require('testcase.exit')
 local collectgarbage = collectgarbage
-local pcall = pcall
 local ipairs = ipairs
+local xpcall = xpcall
+local traceback = debug.traceback
 local getcwd = require('process').getcwd
 local chdir = require('testcase.filesystem').chdir
 local registry = require('testcase.registry')
@@ -51,7 +52,7 @@ local function call(t, func, hookfn, hook_startfn, hook_endfn)
     collectgarbage('collect')
     iohook.hook(hookfn, hook_startfn, hook_endfn)
     t:start()
-    local ok, err = pcall(func)
+    local ok, err = xpcall(func, traceback)
     local elapsed, fmt = t:stop()
     iohook.unhook()
 
