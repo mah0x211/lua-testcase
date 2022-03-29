@@ -43,7 +43,7 @@ jobs:
         luaVersion: ${{ matrix.lua-version }}
     -
       name: Setup Luarocks
-      uses: leafo/gh-actions-luarocks@v4.0.0
+      uses: leafo/gh-actions-luarocks@v4
     -
       name: Install Tools
       run: |
@@ -57,9 +57,7 @@ jobs:
       run: |
         lua ./test/testall.lua
     -
-      name: Coveralls
-      continue-on-error: true
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        luacov-coveralls
+      name: Upload lua coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        flags: unittests
