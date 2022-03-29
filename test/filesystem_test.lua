@@ -1,5 +1,5 @@
 require('luacov')
-local getcwd = require('process').getcwd
+local getcwd = require('getcwd')
 local assert = require('assert')
 local CWD = assert(getcwd())
 
