@@ -28,7 +28,7 @@ local trim_prefix = require('stringex').trim_prefix
 local trim_suffix = require('stringex').trim_suffix
 local getcwd = require('getcwd')
 local pchdir = require('chdir')
-local stat = require('path.pathc').stat
+local fstat = require('fstat')
 local dirname = require('dirname')
 local basename = require('basename')
 local realpath = require('realpath')
@@ -65,17 +65,17 @@ local function walkdir(files, pathname, suffix)
         if not find(ent, '^%.') then
             local fullname = pathname .. '/' .. ent
             -- luacheck: ignore err
-            local info, err = stat(fullname)
+            local info, err, eno = fstat(fullname)
 
             if err then
                 return err
             elseif info then
-                if info.type == 'dir' then
+                if info.type == 'directory' then
                     err = walkdir(files, fullname, suffix)
                     if err then
                         return err
                     end
-                elseif info.type == 'reg' and has_suffix(ent, suffix) then
+                elseif info.type == 'file' and has_suffix(ent, suffix) then
                     files[#files + 1] = trim_cwd(fullname)
                 end
             end
@@ -91,14 +91,17 @@ end
 --- @return string error
 local function getfiles(pathname, suffix)
     local files = {}
-    local info, err = stat(pathname)
+    local info, err, eno = fstat(pathname)
 
     if not info then
+        if eno == ENOENT then
+            return nil
+        end
         return nil, err
-    elseif info.type == 'reg' then
+    elseif info.type == 'file' then
         files[#files + 1] = trim_cwd(pathname)
         return files
-    elseif info.type == 'dir' then
+    elseif info.type == 'directory' then
         err = walkdir(files, trim_suffix(pathname, '/'), suffix or '_test.lua')
         if err then
             return nil, err
@@ -136,7 +139,7 @@ local function getstat(pathname)
     end
 
     -- luacheck: ignore err
-    local info, err = stat(rpath, false)
+    local info, err = fstat(rpath, false)
     -- failed to get stat
     if not info then
         return nil, err

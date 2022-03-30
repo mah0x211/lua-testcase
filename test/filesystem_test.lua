@@ -78,7 +78,7 @@ local function test_getstat()
         type = stat.type,
     }, {
         realpath = CWD .. '/test',
-        type = 'dir',
+        type = 'directory',
     })
 
     -- test that returns nil
