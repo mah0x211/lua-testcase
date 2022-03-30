@@ -31,9 +31,10 @@ local pchdir = require('chdir')
 local stat = require('path.pathc').stat
 local dirname = require('dirname')
 local basename = require('basename')
-local exists = require('path.pathc').exists
+local realpath = require('realpath')
 local readdir = require('path.pathc').readdir
 --- constants
+local ENOENT = require('errno').ENOENT.errno
 local CWD = assert(getcwd())
 
 --- trim_cwd remove CWD prefix from pathname
@@ -123,10 +124,14 @@ end
 --- @return table pathinfo
 --- @return string error
 local function getstat(pathname)
-    local rpath, err = exists(pathname)
+    local rpath, err, eno = realpath(pathname)
     -- failed to get realpath
     if not rpath then
-        -- not found or got erorr
+        if eno == ENOENT then
+            -- not found
+            return nil
+        end
+        -- got erorr
         return nil, err
     end
 
