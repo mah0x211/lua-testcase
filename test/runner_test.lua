@@ -10,6 +10,7 @@ local function test_runner()
         local runner = require('testcase.runner')
         registry.clear()
 
+        -- luacheck: ignore times
         local times = {}
         local calls = {}
         local before_all_error = false

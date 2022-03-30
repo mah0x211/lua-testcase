@@ -51,7 +51,8 @@ local function test_getfiles()
 
     -- test that returns nil if pathname is not found
     files, err = fs.getfiles('./foobarbaz')
-    assert(not err, err)
+    assert.is_nil(err)
+    assert.is_nil(files)
 
     -- test that returns list of a file with suffix '.md'
     files, err = fs.getfiles('.', '.md')
