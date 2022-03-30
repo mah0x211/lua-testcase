@@ -27,7 +27,7 @@ local has_suffix = require('stringex').has_suffix
 local trim_prefix = require('stringex').trim_prefix
 local trim_suffix = require('stringex').trim_suffix
 local getcwd = require('getcwd')
-local pchdir = require('process').chdir
+local pchdir = require('chdir')
 local stat = require('path.pathc').stat
 local dirname = require('path.pathc').dirname
 local basename = require('path.pathc').basename
@@ -112,7 +112,10 @@ end
 --- @param pathname string
 --- @return string error
 local function chdir(pathname)
-    return pchdir(pathname or CWD)
+    local ok, err = pchdir(pathname or CWD)
+    if not ok then
+        return err
+    end
 end
 
 --- cannonicalize filename

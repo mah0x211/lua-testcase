@@ -13,11 +13,11 @@ description = {
 dependencies = {
     'lua >= 5.1',
     'mah0x211/assert >= 0.3.2',
+    'mah0x211/chdir >= 0.1.0',
     'mah0x211/isa >= 0.2',
     'mah0x211/getcwd >= 0.1.0',
     'mah0x211/nosigpipe ~> 0.1',
     'mah0x211/path ~> 1.1',
-    'mah0x211/process >= 1.9.1',
     'mah0x211/selectex >= 0.1.0',
     'mah0x211/stringex >= 0.1.0',
 }
