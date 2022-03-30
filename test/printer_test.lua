@@ -41,7 +41,7 @@ end
 
 local function test_parse_format()
     -- test that return 0 if an argument is not string
-    for _, v in ipairs({
+    for _ in ipairs({
         1,
         true,
         false,
@@ -88,7 +88,7 @@ local function test_vstringify()
     local err = assert.throws(function()
         printer.vstringify(true, 'foo %', 'bar', 1, true, false)
     end)
-    assert.match(err, "invalid .+ to 'format'", false)
+    assert.match(err, "invalid ")
 end
 
 local function test_call_printline()
@@ -114,6 +114,7 @@ local function test_call_printline()
             end,
         },
     })
+    -- luacheck: ignore printer
     local printer = require('testcase.printer')
 
     -- test that print all arguments without prefix
@@ -160,7 +161,7 @@ local function test_call_printline()
     })
 
     -- test that print all arguments without formatting
-    local suffix = '[done]'
+    suffix = '[done]'
     p = printer.new(prefix, suffix, false)
     argv = {}
     p('format %q ', 'foo', ' a b ', 1, true, false, 'with\n\nnewline\n')

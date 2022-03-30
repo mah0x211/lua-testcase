@@ -22,15 +22,16 @@
 --- file scope variables
 local ipairs = ipairs
 local pcall = pcall
+local realpath = require('realpath')
 local eval = require('testcase.eval')
 local osexit = require('testcase.exit').exit
-local exists = require('path').exists
 local print = require('testcase.printer').new(nil, '\n')
 local printCode = require('testcase.printer').new('  >     ', '\n')
 local getfiles = require('testcase.filesystem').getfiles
 local getopts = require('testcase.getopts')
 local registry = require('testcase.registry')
 local runner = require('testcase.runner')
+local ENOENT = require('errno').ENOENT.errno
 local ARGV = _G.arg
 local HEADLINE = string.rep('=', 80)
 local USAGE = [[
@@ -86,9 +87,9 @@ do
     end
 
     -- confirm pathname
-    local pathname, err = exists(opts[1])
+    local pathname, err, eno = realpath(opts[1])
     if not pathname then
-        if err then
+        if eno ~= ENOENT then
             exit(-1, 'failed to resolve path %q: %s', opts[1], err)
         end
         exit(-1, 'failed to resolve path %q', opts[1])
@@ -125,7 +126,7 @@ do
 
     local ok, nsuccess, nfailure, t, err = runner.run()
     if not ok then
-        exists(-1, 'failed to runner.run(): ', err)
+        exit(-1, 'failed to runner.run(): ', err)
     end
 
     local total, fmt = t:total()

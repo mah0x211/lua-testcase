@@ -1,4 +1,3 @@
-local floor = math.floor
 local assert = require('assert')
 local gettimeofday = require('process').gettimeofday
 local sleep = require('process').sleep
@@ -56,6 +55,7 @@ local function test_elapsed()
 
     -- test that the elapsed time increases
     local prev = val2ns(v, unit)
+    local _
     v, _, unit = assert(t:elapsed())
     assert.equal(unit, 's')
     v = val2ns(v, unit)
@@ -85,7 +85,8 @@ local function test_stop_total_reset()
     assert.equal(tunit, unit)
 
     local v1 = val2ns(v, unit)
-    local v2, _, unit = assert(t:stop())
+    local v2, _
+    v2, _, unit = assert(t:stop())
     v2 = val2ns(v2, unit)
 
     total, _, unit = assert(t:total())

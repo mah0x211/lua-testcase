@@ -1,12 +1,9 @@
 require('luacov')
 local pcall = pcall
-local format = string.format
 local date = os.date
 local remove = os.remove
-local tmpname = os.tmpname
 local open = io.open
 local assert = require('assert')
-local dump = require('dump')
 
 local function truncate(filename)
     local f = assert(open(filename, 'w'))

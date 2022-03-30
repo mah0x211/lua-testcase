@@ -26,14 +26,15 @@ local has_prefix = require('stringex').has_prefix
 local has_suffix = require('stringex').has_suffix
 local trim_prefix = require('stringex').trim_prefix
 local trim_suffix = require('stringex').trim_suffix
-local getcwd = require('process').getcwd
-local pchdir = require('process').chdir
-local stat = require('path.pathc').stat
-local dirname = require('path.pathc').dirname
-local basename = require('path.pathc').basename
-local exists = require('path.pathc').exists
-local readdir = require('path.pathc').readdir
+local getcwd = require('getcwd')
+local pchdir = require('chdir')
+local fstat = require('fstat')
+local dirname = require('dirname')
+local basename = require('basename')
+local realpath = require('realpath')
+local opendir = require('opendir')
 --- constants
+local ENOENT = require('errno').ENOENT.errno
 local CWD = assert(getcwd())
 
 --- trim_cwd remove CWD prefix from pathname
@@ -52,32 +53,41 @@ end
 --- @param pathname string
 --- @param suffix string
 local function walkdir(files, pathname, suffix)
-    local ents, err = readdir(pathname)
+    local dir, err = opendir(pathname)
 
     if err then
         return err
     end
 
     -- list up
-    for _, ent in ipairs(ents) do
-        -- ignore dotfiles
-        if not find(ent, '^%.') then
-            local fullname = pathname .. '/' .. ent
-            -- luacheck: ignore err
-            local info, err = stat(fullname)
+    local entry
+    entry, err = dir:readdir()
+    if err then
+        return err
+    end
 
-            if err then
+    while entry do
+        -- ignore dotfiles
+        if not find(entry, '^%.') then
+            local fullname = pathname .. '/' .. entry
+            local info, eno
+
+            info, err, eno = fstat(fullname)
+            if err and eno ~= ENOENT then
                 return err
-            elseif info then
-                if info.type == 'dir' then
-                    err = walkdir(files, fullname, suffix)
-                    if err then
-                        return err
-                    end
-                elseif info.type == 'reg' and has_suffix(ent, suffix) then
-                    files[#files + 1] = trim_cwd(fullname)
+            elseif info.type == 'directory' then
+                err = walkdir(files, fullname, suffix)
+                if err then
+                    return err
                 end
+            elseif info.type == 'file' and has_suffix(entry, suffix) then
+                files[#files + 1] = trim_cwd(fullname)
             end
+        end
+
+        entry, err = dir:readdir()
+        if err then
+            return err
         end
     end
 end
@@ -90,14 +100,17 @@ end
 --- @return string error
 local function getfiles(pathname, suffix)
     local files = {}
-    local info, err = stat(pathname)
+    local info, err, eno = fstat(pathname)
 
     if not info then
+        if eno == ENOENT then
+            return nil
+        end
         return nil, err
-    elseif info.type == 'reg' then
+    elseif info.type == 'file' then
         files[#files + 1] = trim_cwd(pathname)
         return files
-    elseif info.type == 'dir' then
+    elseif info.type == 'directory' then
         err = walkdir(files, trim_suffix(pathname, '/'), suffix or '_test.lua')
         if err then
             return nil, err
@@ -112,7 +125,10 @@ end
 --- @param pathname string
 --- @return string error
 local function chdir(pathname)
-    return pchdir(pathname or CWD)
+    local ok, err = pchdir(pathname or CWD)
+    if not ok then
+        return err
+    end
 end
 
 --- cannonicalize filename
@@ -120,15 +136,19 @@ end
 --- @return table pathinfo
 --- @return string error
 local function getstat(pathname)
-    local rpath, err = exists(pathname)
+    local rpath, err, eno = realpath(pathname)
     -- failed to get realpath
     if not rpath then
-        -- not found or got erorr
+        if eno == ENOENT then
+            -- not found
+            return nil
+        end
+        -- got erorr
         return nil, err
     end
 
     -- luacheck: ignore err
-    local info, err = stat(rpath, false)
+    local info, err = fstat(rpath, false)
     -- failed to get stat
     if not info then
         return nil, err

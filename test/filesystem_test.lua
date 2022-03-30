@@ -1,5 +1,5 @@
 require('luacov')
-local getcwd = require('process').getcwd
+local getcwd = require('getcwd')
 local assert = require('assert')
 local CWD = assert(getcwd())
 
@@ -51,7 +51,8 @@ local function test_getfiles()
 
     -- test that returns nil if pathname is not found
     files, err = fs.getfiles('./foobarbaz')
-    assert(not err, err)
+    assert.is_nil(err)
+    assert.is_nil(files)
 
     -- test that returns list of a file with suffix '.md'
     files, err = fs.getfiles('.', '.md')
@@ -78,7 +79,7 @@ local function test_getstat()
         type = stat.type,
     }, {
         realpath = CWD .. '/test',
-        type = 'dir',
+        type = 'directory',
     })
 
     -- test that returns nil
