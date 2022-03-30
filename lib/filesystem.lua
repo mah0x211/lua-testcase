@@ -30,7 +30,7 @@ local getcwd = require('getcwd')
 local pchdir = require('chdir')
 local stat = require('path.pathc').stat
 local dirname = require('dirname')
-local basename = require('path.pathc').basename
+local basename = require('basename')
 local exists = require('path.pathc').exists
 local readdir = require('path.pathc').readdir
 --- constants
