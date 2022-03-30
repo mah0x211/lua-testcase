@@ -88,7 +88,7 @@ local function test_vstringify()
     local err = assert.throws(function()
         printer.vstringify(true, 'foo %', 'bar', 1, true, false)
     end)
-    assert.match(err, "invalid .+ to 'format'", false)
+    assert.match(err, "invalid ")
 end
 
 local function test_call_printline()
