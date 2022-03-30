@@ -21,7 +21,7 @@ dependencies = {
     'mah0x211/getcwd >= 0.1.0',
     'mah0x211/isa >= 0.2',
     'mah0x211/nosigpipe ~> 0.1',
-    'mah0x211/path ~> 1.1',
+    'mah0x211/opendir >= 0.2.0',
     'mah0x211/realpath >= 0.2.0',
     'mah0x211/selectex >= 0.1.0',
     'mah0x211/stringex >= 0.1.0',

@@ -32,7 +32,7 @@ local fstat = require('fstat')
 local dirname = require('dirname')
 local basename = require('basename')
 local realpath = require('realpath')
-local readdir = require('path.pathc').readdir
+local opendir = require('opendir')
 --- constants
 local ENOENT = require('errno').ENOENT.errno
 local CWD = assert(getcwd())
@@ -53,32 +53,41 @@ end
 --- @param pathname string
 --- @param suffix string
 local function walkdir(files, pathname, suffix)
-    local ents, err = readdir(pathname)
+    local dir, err = opendir(pathname)
 
     if err then
         return err
     end
 
     -- list up
-    for _, ent in ipairs(ents) do
-        -- ignore dotfiles
-        if not find(ent, '^%.') then
-            local fullname = pathname .. '/' .. ent
-            -- luacheck: ignore err
-            local info, err, eno = fstat(fullname)
+    local entry
+    entry, err = dir:readdir()
+    if err then
+        return err
+    end
 
-            if err then
+    while entry do
+        -- ignore dotfiles
+        if not find(entry, '^%.') then
+            local fullname = pathname .. '/' .. entry
+            local info, eno
+
+            info, err, eno = fstat(fullname)
+            if err and eno ~= ENOENT then
                 return err
-            elseif info then
-                if info.type == 'directory' then
-                    err = walkdir(files, fullname, suffix)
-                    if err then
-                        return err
-                    end
-                elseif info.type == 'file' and has_suffix(ent, suffix) then
-                    files[#files + 1] = trim_cwd(fullname)
+            elseif info.type == 'directory' then
+                err = walkdir(files, fullname, suffix)
+                if err then
+                    return err
                 end
+            elseif info.type == 'file' and has_suffix(entry, suffix) then
+                files[#files + 1] = trim_cwd(fullname)
             end
+        end
+
+        entry, err = dir:readdir()
+        if err then
+            return err
         end
     end
 end
