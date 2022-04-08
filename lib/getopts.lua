@@ -20,8 +20,7 @@
 -- THE SOFTWARE.
 --
 local ipairs = ipairs
-local string = require('stringex')
-local has_prefix = string.has_prefix
+local has_prefix = require('string.contains').prefix
 local split = require('string.split')
 
 local function getopts(arg)

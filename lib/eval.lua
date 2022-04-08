@@ -25,12 +25,11 @@ local error = error
 local loadfile = loadfile
 local open = io.open
 local pcall = pcall
-local string = require('stringex')
 local find = string.find
 local format = string.format
-local has_suffix = string.has_suffix
-local trim = require('string.trim')
 local sub = string.sub
+local has_suffix = require('string.contains').suffix
+local trim = require('string.trim')
 -- constants
 local LUAVER = trim.prefix(_VERSION, 'Lua ')
 local LOADCHUNK = LUAVER == '5.1' and loadstring or load
