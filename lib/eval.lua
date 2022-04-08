@@ -25,14 +25,13 @@ local error = error
 local loadfile = loadfile
 local open = io.open
 local pcall = pcall
-local string = require('stringex')
 local find = string.find
 local format = string.format
-local has_suffix = string.has_suffix
-local trim_space = string.trim_space
 local sub = string.sub
+local has_suffix = require('string.contains').suffix
+local trim = require('string.trim')
 -- constants
-local LUAVER = string.trim_prefix(_VERSION, 'Lua ')
+local LUAVER = trim.prefix(_VERSION, 'Lua ')
 local LOADCHUNK = LUAVER == '5.1' and loadstring or load
 local EINVAL = 'invalid inline option `lua-testcase` value: %q at lineno:%d'
 local EALREADY = 'invalid inline option `lua-testcase` at lineno:%d: ' ..
@@ -76,7 +75,7 @@ local function checkline(ctx, line, lineno, head, tail)
     local opt_head, opt_tail = find(line, INLINE_OPT)
     if opt_head then
         -- verify option value
-        local optval = trim_space(sub(line, opt_tail + 1))
+        local optval = trim(sub(line, opt_tail + 1))
         local ok = VALID_OPTVAL[optval]
         if ok == nil then
             -- option value is not true|false
