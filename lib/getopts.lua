@@ -22,14 +22,14 @@
 local ipairs = ipairs
 local string = require('stringex')
 local has_prefix = string.has_prefix
-local split = string.split
+local split = require('string.split')
 
 local function getopts(arg)
     local opts = {}
 
     for _, s in ipairs(arg) do
         if has_prefix(s, '-') then
-            local arr = split(s, '=', false, 1)
+            local arr = split(s, '=', 1)
             if #arr == 1 then
                 opts[arr[1]] = true
             else
