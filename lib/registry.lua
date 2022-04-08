@@ -23,9 +23,8 @@ local type = type
 local pairs = pairs
 local sort = table.sort
 local getinfo = debug.getinfo
-local string = require('stringex')
-local trim_prefix = string.trim_prefix
 local format = string.format
+local trim_prefix = require('string.trim').prefix
 local fs = require('testcase.filesystem')
 
 local function cmp_name(a, b)
