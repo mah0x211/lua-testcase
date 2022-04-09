@@ -36,7 +36,7 @@ local printCode = printer.new('  >     ', '\n', false)
 local iohook = require('testcase.iohook')
 local HR = string.rep('-', 80)
 
---- call a function by pcall
+--- call a function by xpcall
 --- @param t userdata
 --- @param func function
 --- @param hookfn function
