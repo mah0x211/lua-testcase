@@ -56,6 +56,7 @@ local function call(t, func, hookfn, hook_startfn, hook_endfn)
     local elapsed, fmt = t:stop()
     iohook.unhook()
 
+    -- move to test working directory
     local cerr = chdir(cwd)
     assert(not cerr, cerr)
 
@@ -127,13 +128,6 @@ local function run_file(t, src)
     print('%s: %d test cases', src.name, ntest)
     print(HR)
 
-    -- move to test file directory
-    local err = chdir(src.dirname)
-    if err then
-        print('failed to chdir(%q)', src.dirname, err)
-        return 0
-    end
-
     --- call before_all
     if src.before_all and not run_setup_teadown(t, 'before_all', src.before_all) then
         return 0
@@ -163,13 +157,6 @@ local function run_file(t, src)
 
     print('\n%d successes, %d failures', nsuccess, ntest - nsuccess)
 
-    -- move to the initial working directory
-    err = chdir()
-    if err then
-        print('failed to chdir()', err)
-        return nsuccess
-    end
-
     return nsuccess
 end
 
@@ -198,8 +185,15 @@ local function run()
     local t = timer.new()
     local nsuccess = 0
     for _, src in ipairs(list) do
+        -- move to test file directory
+        local err = chdir()
+        assert(not err, err)
+        err = chdir(src.dirname)
+        assert(not err, err)
+
         nsuccess = nsuccess + run_file(t, src)
     end
+    -- move to the initial working directory
     chdir()
     print('\n', HR, '\n')
 
