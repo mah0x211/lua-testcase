@@ -63,9 +63,11 @@ local function walkdir(files, pathname, suffix)
     local entry
     entry, err = dir:readdir()
     if err then
+        dir:closedir()
         return err
     end
 
+    local dirs = {}
     while entry do
         -- ignore dotfiles
         if not find(entry, '^%.') then
@@ -73,19 +75,27 @@ local function walkdir(files, pathname, suffix)
             local info, eno
 
             info, err, eno = fstat(fullname)
-            if err and eno ~= ENOENT then
-                return err
-            elseif info.type == 'directory' then
-                err = walkdir(files, fullname, suffix)
-                if err then
+            if err then
+                if eno ~= ENOENT then
                     return err
                 end
+            elseif info.type == 'directory' then
+                dirs[#dirs + 1] = fullname
             elseif info.type == 'file' and has_suffix(entry, suffix) then
                 files[#files + 1] = trim_cwd(fullname)
             end
         end
 
         entry, err = dir:readdir()
+        if err then
+            dir:closedir()
+            return err
+        end
+    end
+    dir:closedir()
+
+    for _, fullname in ipairs(dirs) do
+        err = walkdir(files, fullname, suffix)
         if err then
             return err
         end
