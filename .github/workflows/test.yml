@@ -53,8 +53,7 @@ jobs:
     -
       name: Install Tools
       run: |
-        luarocks install luacov-coveralls
-        luarocks install process
+        luarocks install luacov
     -
       name: Run Test
       run: |

@@ -32,33 +32,41 @@
 # include <mach/mach.h>
 # include <mach/mach_time.h>
 
-static inline int getnsec(uint64_t *ns)
+static inline int getnsec_ex(struct timespec *ts)
 {
     static mach_timebase_info_data_t tbinfo = {0};
+    uint64_t ns                             = 0;
 
     if (tbinfo.denom == 0) {
         (void)mach_timebase_info(&tbinfo);
     }
 
-    *ns = mach_absolute_time() * tbinfo.numer / tbinfo.denom;
+    ns          = mach_absolute_time() * tbinfo.numer / tbinfo.denom;
+    ts->tv_sec  = ns / 1000000000;
+    ts->tv_nsec = ns - (ts->tv_sec * 1000000000);
     return 0;
 }
 
 #else
 
+static inline int getnsec_ex(struct timespec *ts)
+{
+    return clock_gettime(CLOCK_MONOTONIC, ts);
+}
+
+#endif
+
 static inline int getnsec(uint64_t *ns)
 {
     struct timespec ts = {0};
 
-    if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
+    if (getnsec_ex(&ts) == -1) {
         return -1;
     }
 
     *ns = (uint64_t)ts.tv_sec * 1000000000 + (uint64_t)ts.tv_nsec;
     return 0;
 }
-
-#endif
 
 #define TESTCASE_TIMER_MT "testcase.timer"
 
@@ -193,6 +201,33 @@ static int usleep_lua(lua_State *L)
     return 0;
 }
 
+static int sleep_lua(lua_State *L)
+{
+    lua_Number sec     = luaL_checknumber(L, 1);
+    struct timespec ts = {
+        .tv_sec = sec,
+    };
+    ts.tv_nsec = (sec - ts.tv_sec) * 1000000000;
+
+    nanosleep(&ts, NULL);
+
+    return 0;
+}
+
+static int nanotime_lua(lua_State *L)
+{
+    struct timespec ts = {0};
+
+    if (getnsec_ex(&ts) == -1) {
+        lua_pushnil(L);
+        lua_pushstring(L, strerror(errno));
+        return 2;
+    }
+    lua_pushnumber(L, (double)ts.tv_sec + ((double)ts.tv_nsec / 1000000000));
+
+    return 1;
+}
+
 LUALIB_API int luaopen_testcase_timer(lua_State *L)
 {
     // create metatable
@@ -240,6 +275,12 @@ LUALIB_API int luaopen_testcase_timer(lua_State *L)
     lua_rawset(L, -3);
     lua_pushstring(L, "usleep");
     lua_pushcfunction(L, usleep_lua);
+    lua_rawset(L, -3);
+    lua_pushstring(L, "sleep");
+    lua_pushcfunction(L, sleep_lua);
+    lua_rawset(L, -3);
+    lua_pushstring(L, "nanotime");
+    lua_pushcfunction(L, nanotime_lua);
     lua_rawset(L, -3);
 
     return 1;
