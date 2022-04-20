@@ -201,6 +201,19 @@ static int usleep_lua(lua_State *L)
     return 0;
 }
 
+static int sleep_lua(lua_State *L)
+{
+    lua_Number sec     = luaL_checknumber(L, 1);
+    struct timespec ts = {
+        .tv_sec = sec,
+    };
+    ts.tv_nsec = (sec - ts.tv_sec) * 1000000000;
+
+    nanosleep(&ts, NULL);
+
+    return 0;
+}
+
 static int nanotime_lua(lua_State *L)
 {
     struct timespec ts = {0};
@@ -262,6 +275,9 @@ LUALIB_API int luaopen_testcase_timer(lua_State *L)
     lua_rawset(L, -3);
     lua_pushstring(L, "usleep");
     lua_pushcfunction(L, usleep_lua);
+    lua_rawset(L, -3);
+    lua_pushstring(L, "sleep");
+    lua_pushcfunction(L, sleep_lua);
     lua_rawset(L, -3);
     lua_pushstring(L, "nanotime");
     lua_pushcfunction(L, nanotime_lua);

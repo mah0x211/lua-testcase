@@ -1,6 +1,4 @@
 local assert = require('assert')
-local gettimeofday = require('process').gettimeofday
-local sleep = require('process').sleep
 local timer = require('testcase.timer')
 
 local function val2ns(v, unit)
@@ -21,9 +19,17 @@ end
 
 local function test_usleep()
     -- test that sleep 60ms
-    local t = gettimeofday()
+    local t = timer.nanotime()
     timer.usleep(60000)
-    t = gettimeofday() - t
+    t = timer.nanotime() - t
+    assert.is_true(0.05 < t and t < 0.07)
+end
+
+local function test_sleep()
+    -- test that sleep 60ms
+    local t = timer.nanotime()
+    timer.sleep(0.06)
+    t = timer.nanotime() - t
     assert.is_true(0.05 < t and t < 0.07)
 end
 
@@ -45,7 +51,7 @@ local function test_elapsed()
     t:start()
     t:stop()
     -- sleep 1 sec
-    sleep(1)
+    timer.sleep(1)
 
     -- test that timer:elpased() returns a value of clock_gettime
     local v, fmt, unit = assert(t:elapsed())
@@ -102,6 +108,7 @@ local function test_stop_total_reset()
 end
 
 test_usleep()
+test_sleep()
 test_new()
 test_start()
 test_elapsed()
