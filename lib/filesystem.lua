@@ -73,8 +73,10 @@ local function walkdir(files, pathname, suffix)
             local info, eno
 
             info, err, eno = fstat(fullname)
-            if err and eno ~= ENOENT then
-                return err
+            if err then
+                if eno ~= ENOENT then
+                    return err
+                end
             elseif info.type == 'directory' then
                 err = walkdir(files, fullname, suffix)
                 if err then
