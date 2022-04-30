@@ -34,7 +34,7 @@ local basename = require('basename')
 local realpath = require('realpath')
 local opendir = require('opendir')
 --- constants
-local ENOENT = require('errno').ENOENT.errno
+local ENOENT = require('errno').ENOENT.code
 local CWD = assert(getcwd())
 
 --- trim_cwd remove CWD prefix from pathname

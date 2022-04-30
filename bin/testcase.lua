@@ -31,7 +31,7 @@ local getfiles = require('testcase.filesystem').getfiles
 local getopts = require('testcase.getopts')
 local registry = require('testcase.registry')
 local runner = require('testcase.runner')
-local ENOENT = require('errno').ENOENT.errno
+local ENOENT = require('errno').ENOENT.code
 local ARGV = _G.arg
 local HEADLINE = string.rep('=', 80)
 local USAGE = [[
