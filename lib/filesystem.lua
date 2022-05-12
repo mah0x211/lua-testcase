@@ -34,7 +34,7 @@ local basename = require('basename')
 local realpath = require('realpath')
 local opendir = require('opendir')
 --- constants
-local ENOENT = require('errno').ENOENT.code
+local ENOENT = require('errno').ENOENT
 local CWD = assert(getcwd())
 
 --- trim_cwd remove CWD prefix from pathname
@@ -72,11 +72,11 @@ local function walkdir(files, pathname, suffix)
         -- ignore dotfiles
         if not find(entry, '^%.') then
             local fullname = pathname .. '/' .. entry
-            local info, eno
+            local info
 
-            info, err, eno = fstat(fullname)
+            info, err = fstat(fullname)
             if err then
-                if eno ~= ENOENT then
+                if err.type ~= ENOENT then
                     return err
                 end
             elseif info.type == 'directory' then
@@ -110,10 +110,10 @@ end
 --- @return string error
 local function getfiles(pathname, suffix)
     local files = {}
-    local info, err, eno = fstat(pathname)
+    local info, err = fstat(pathname)
 
-    if not info then
-        if eno == ENOENT then
+    if err then
+        if err.type == ENOENT then
             return nil
         end
         return nil, err
@@ -146,10 +146,10 @@ end
 --- @return table pathinfo
 --- @return string error
 local function getstat(pathname)
-    local rpath, err, eno = realpath(pathname)
+    local rpath, err = realpath(pathname)
     -- failed to get realpath
-    if not rpath then
-        if eno == ENOENT then
+    if err then
+        if err.type == ENOENT then
             -- not found
             return nil
         end

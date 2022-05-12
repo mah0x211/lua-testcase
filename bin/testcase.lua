@@ -31,7 +31,7 @@ local getfiles = require('testcase.filesystem').getfiles
 local getopts = require('testcase.getopts')
 local registry = require('testcase.registry')
 local runner = require('testcase.runner')
-local ENOENT = require('errno').ENOENT.code
+local ENOENT = require('errno').ENOENT
 local ARGV = _G.arg
 local HEADLINE = string.rep('=', 80)
 local USAGE = [[
@@ -87,9 +87,9 @@ do
     end
 
     -- confirm pathname
-    local pathname, err, eno = realpath(opts[1])
-    if not pathname then
-        if eno ~= ENOENT then
+    local pathname, err = realpath(opts[1])
+    if err then
+        if err.type ~= ENOENT then
             exit(-1, 'failed to resolve path %q: %s', opts[1], err)
         end
         exit(-1, 'failed to resolve path %q', opts[1])
