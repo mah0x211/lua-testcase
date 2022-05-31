@@ -45,6 +45,12 @@ build = {
         ['testcase.printer'] = 'lib/printer.lua',
         ['testcase.registry'] = 'lib/registry.lua',
         ['testcase.runner'] = 'lib/runner.lua',
+        ['testcase.fork'] = {
+            sources = { 'src/fork.c' },
+        },
+        ['testcase.getpid'] = {
+            sources = { 'src/getpid.c' },
+        },
         ['testcase.timer'] = {
             sources = { 'src/timer.c' },
         },

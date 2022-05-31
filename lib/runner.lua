@@ -20,7 +20,7 @@
 -- THE SOFTWARE.
 --
 --- file scope variables
-require('testcase.exit')
+local exit = require('testcase.exit').exit
 local collectgarbage = collectgarbage
 local ipairs = ipairs
 local xpcall = xpcall
@@ -29,11 +29,14 @@ local getcwd = require('getcwd')
 local chdir = require('testcase.filesystem').chdir
 local registry = require('testcase.registry')
 local timer = require('testcase.timer')
+local getpid = require('testcase.getpid')
 local printer = require('testcase.printer')
 local print = printer.new(nil, '\n')
 local printf = printer.new()
 local printCode = printer.new('  >     ', '\n', false)
 local iohook = require('testcase.iohook')
+--- constants
+local PID = getpid()
 local HR = string.rep('-', 80)
 
 --- call a function by xpcall
@@ -55,6 +58,11 @@ local function call(t, func, hookfn, hook_startfn, hook_endfn)
     local ok, err = xpcall(func, traceback)
     local elapsed, fmt = t:stop()
     iohook.unhook()
+
+    -- exit if process is forked in func
+    if getpid() ~= PID then
+        exit()
+    end
 
     -- move to test working directory
     local cerr = chdir(cwd)
@@ -124,7 +132,8 @@ local function run_file(t, src)
     local ntest = #src.tests
     local nsuccess = 0
 
-    print('\n', HR)
+    print('')
+    print(HR)
     print('%s: %d test cases', src.name, ntest)
     print(HR)
 
@@ -195,7 +204,9 @@ local function run()
     end
     -- move to the initial working directory
     chdir()
-    print('\n', HR, '\n')
+    print('')
+    print(HR)
+    print('')
 
     return true, nsuccess, ntest - nsuccess, t
 end
