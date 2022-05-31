@@ -48,6 +48,9 @@ build = {
         ['testcase.fork'] = {
             sources = { 'src/fork.c' },
         },
+        ['testcase.getpid'] = {
+            sources = { 'src/getpid.c' },
+        },
         ['testcase.timer'] = {
             sources = { 'src/timer.c' },
         },

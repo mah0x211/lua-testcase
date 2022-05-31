@@ -34,6 +34,7 @@ local function test_getfiles()
         './test/exit_test.lua',
         './test/filesystem_test.lua',
         './test/getopts_test.lua',
+        './test/getpid_test.lua',
         './test/iohook_test.lua',
         './test/printer_test.lua',
         './test/registry_test.lua',
