@@ -27,11 +27,11 @@ local has_prefix = require('string.contains').prefix
 local has_suffix = require('string.contains').suffix
 local trim_prefix = require('string.trim').prefix
 local trim_suffix = require('string.trim').suffix
-local getcwd = require('getcwd')
 local pchdir = require('chdir')
 local fstat = require('fstat')
 local realpath = require('realpath')
 local opendir = require('opendir')
+local getcwd = require('testcase.getcwd')
 --- constants
 local ENOENT = require('errno').ENOENT
 local CWD = assert(getcwd())
