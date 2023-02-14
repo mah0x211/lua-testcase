@@ -13,7 +13,6 @@ description = {
 dependencies = {
     "lua >= 5.1",
     "mah0x211/assert >= 0.3.2",
-    "mah0x211/chdir >= 0.2.0",
     "mah0x211/errno >= 0.3.0",
     "mah0x211/fstat >= 0.2.2",
     "mah0x211/isa >= 0.2",
@@ -43,20 +42,9 @@ build = {
         ["testcase.printer"] = "lib/printer.lua",
         ["testcase.registry"] = "lib/registry.lua",
         ["testcase.runner"] = "lib/runner.lua",
-        ["testcase.fork"] = {
-            sources = {
-                "src/fork.c",
-            },
-        },
-        ["testcase.getpid"] = {
-            sources = {
-                "src/getpid.c",
-            },
-        },
-        ["testcase.timer"] = {
-            sources = {
-                "src/timer.c",
-            },
-        },
+        ["testcase.chdir"] = "src/chdir.c",
+        ["testcase.fork"] = "src/fork.c",
+        ["testcase.getpid"] = "src/getpid.c",
+        ["testcase.timer"] = "src/timer.c",
     },
 }
