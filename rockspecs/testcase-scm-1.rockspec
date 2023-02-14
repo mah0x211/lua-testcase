@@ -15,7 +15,6 @@ dependencies = {
     "mah0x211/assert >= 0.3.2",
     "mah0x211/errno >= 0.3.0",
     "mah0x211/fstat >= 0.2.2",
-    "mah0x211/nosigpipe ~> 0.1",
     "mah0x211/opendir >= 0.2.1",
     "mah0x211/realpath >= 0.2.1",
     "mah0x211/selectex >= 0.1.0",
@@ -44,6 +43,7 @@ build = {
         ["testcase.chdir"] = "src/chdir.c",
         ["testcase.fork"] = "src/fork.c",
         ["testcase.getpid"] = "src/getpid.c",
+        ["testcase.nosigpipe"] = "src/nosigpipe.c",
         ["testcase.timer"] = "src/timer.c",
     },
 }

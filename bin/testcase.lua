@@ -20,7 +20,7 @@
 -- THE SOFTWARE.
 --
 --- prevent sigpipe
-require('nosigpipe')
+require('testcase.nosigpipe')
 --- file scope variables
 local ipairs = ipairs
 local pcall = pcall
