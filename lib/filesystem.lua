@@ -27,8 +27,8 @@ local sub = string.sub
 local trim_prefix = require('string.trim').prefix
 local trim_suffix = require('string.trim').suffix
 local fstat = require('fstat')
-local realpath = require('realpath')
 local opendir = require('opendir')
+local realpath = require('testcase.realpath')
 local pchdir = require('testcase.chdir')
 local getcwd = require('testcase.getcwd')
 --- constants

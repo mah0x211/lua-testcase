@@ -24,7 +24,7 @@ require('testcase.nosigpipe')
 --- file scope variables
 local ipairs = ipairs
 local pcall = pcall
-local realpath = require('realpath')
+local realpath = require('testcase.realpath')
 local eval = require('testcase.eval')
 local osexit = require('testcase.exit').exit
 local print = require('testcase.printer').new(nil, '\n')
