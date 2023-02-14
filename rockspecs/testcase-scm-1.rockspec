@@ -15,7 +15,6 @@ dependencies = {
     "mah0x211/assert >= 0.3.2",
     "mah0x211/errno >= 0.3.0",
     "mah0x211/fstat >= 0.2.2",
-    "mah0x211/isa >= 0.2",
     "mah0x211/nosigpipe ~> 0.1",
     "mah0x211/opendir >= 0.2.1",
     "mah0x211/realpath >= 0.2.1",
