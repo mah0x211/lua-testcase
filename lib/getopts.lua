@@ -19,20 +19,20 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 -- THE SOFTWARE.
 --
+local match = string.match
 local ipairs = ipairs
 local has_prefix = require('string.contains').prefix
-local split = require('string.split')
 
 local function getopts(arg)
     local opts = {}
 
     for _, s in ipairs(arg) do
         if has_prefix(s, '-') then
-            local arr = split(s, '=', 1)
-            if #arr == 1 then
-                opts[arr[1]] = true
+            local k, v = match(s, '^([^=]*)=?(.*)$')
+            if not v or v == '' then
+                opts[k] = true
             else
-                opts[arr[1]] = arr[2]
+                opts[k] = v
             end
         else
             opts[#opts + 1] = s

@@ -19,7 +19,6 @@ dependencies = {
     "mah0x211/realpath >= 0.2.1",
     "mah0x211/selectex >= 0.1.0",
     "mah0x211/string-contains >= 0.1.0",
-    "mah0x211/string-split >= 0.3.0",
     "mah0x211/string-trim >= 0.2.0",
 }
 build = {
