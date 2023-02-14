@@ -30,7 +30,6 @@ local trim_suffix = require('string.trim').suffix
 local getcwd = require('getcwd')
 local pchdir = require('chdir')
 local fstat = require('fstat')
-local dirname = require('dirname')
 local realpath = require('realpath')
 local opendir = require('opendir')
 --- constants
@@ -167,7 +166,7 @@ local function getstat(pathname)
     info.realpath = rpath
     info.basename = match(rpath, '([^/]+)/*$') or '.'
     info.pathname = trim_cwd(rpath)
-    info.dirname = dirname(info.pathname)
+    info.dirname = match(info.pathname, '^(.+)/[^/]*$') or '/'
 
     return info
 end
