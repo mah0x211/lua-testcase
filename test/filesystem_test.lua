@@ -66,7 +66,7 @@ local function test_getfiles()
     err = assert.throws(function()
         fs.getfiles('.', 1)
     end)
-    assert.match(err, 'string expected, got number')
+    assert.match(err, 'suffix must be string')
 end
 
 local function test_getstat()

@@ -23,8 +23,7 @@
 local sort = table.sort
 local find = string.find
 local match = string.match
-local has_prefix = require('string.contains').prefix
-local has_suffix = require('string.contains').suffix
+local sub = string.sub
 local trim_prefix = require('string.trim').prefix
 local trim_suffix = require('string.trim').suffix
 local fstat = require('fstat')
@@ -40,7 +39,7 @@ local CWD = assert(getcwd())
 --- @param pathname string
 --- @return string pathname
 local function trim_cwd(pathname)
-    if has_prefix(pathname, CWD) then
+    if sub(pathname, 1, #CWD) == CWD then
         return trim_prefix(trim_prefix(pathname, CWD), '/')
     end
     return pathname
@@ -80,7 +79,7 @@ local function walkdir(files, pathname, suffix)
                 end
             elseif info.type == 'directory' then
                 dirs[#dirs + 1] = fullname
-            elseif info.type == 'file' and has_suffix(entry, suffix) then
+            elseif info.type == 'file' and sub(entry, -#suffix) == suffix then
                 files[#files + 1] = trim_cwd(fullname)
             end
         end
@@ -108,6 +107,12 @@ end
 --- @return table files
 --- @return string error
 local function getfiles(pathname, suffix)
+    if type(pathname) ~= 'string' then
+        error('pathname must be string', 2)
+    elseif suffix ~= nil and type(suffix) ~= 'string' then
+        error('suffix must be string', 2)
+    end
+
     local files = {}
     local info, err = fstat(pathname)
 

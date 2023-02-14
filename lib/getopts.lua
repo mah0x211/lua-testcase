@@ -19,15 +19,15 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 -- THE SOFTWARE.
 --
+local sub = string.sub
 local match = string.match
 local ipairs = ipairs
-local has_prefix = require('string.contains').prefix
 
 local function getopts(arg)
     local opts = {}
 
     for _, s in ipairs(arg) do
-        if has_prefix(s, '-') then
+        if sub(s, 1, 1) == '-' then
             local k, v = match(s, '^([^=]*)=?(.*)$')
             if not v or v == '' then
                 opts[k] = true
