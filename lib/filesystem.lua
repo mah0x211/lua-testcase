@@ -22,6 +22,7 @@
 --- file scope variables
 local sort = table.sort
 local find = string.find
+local match = string.match
 local has_prefix = require('string.contains').prefix
 local has_suffix = require('string.contains').suffix
 local trim_prefix = require('string.trim').prefix
@@ -30,7 +31,6 @@ local getcwd = require('getcwd')
 local pchdir = require('chdir')
 local fstat = require('fstat')
 local dirname = require('dirname')
-local basename = require('basename')
 local realpath = require('realpath')
 local opendir = require('opendir')
 --- constants
@@ -165,7 +165,7 @@ local function getstat(pathname)
     end
 
     info.realpath = rpath
-    info.basename = basename(rpath)
+    info.basename = match(rpath, '([^/]+)/*$') or '.'
     info.pathname = trim_cwd(rpath)
     info.dirname = dirname(info.pathname)
 
