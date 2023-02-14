@@ -27,7 +27,7 @@ local sub = string.sub
 local trim_prefix = require('string.trim').prefix
 local trim_suffix = require('string.trim').suffix
 local fstat = require('fstat')
-local opendir = require('opendir')
+local readdir = require('testcase.readdir')
 local realpath = require('testcase.realpath')
 local pchdir = require('testcase.chdir')
 local getcwd = require('testcase.getcwd')
@@ -51,46 +51,29 @@ end
 --- @param pathname string
 --- @param suffix string
 local function walkdir(files, pathname, suffix)
-    local dir, err = opendir(pathname)
-
-    if err then
-        return err
-    end
-
-    -- list up
-    local entry
-    entry, err = dir:readdir()
-    if err then
-        dir:closedir()
-        return err
-    end
-
     local dirs = {}
-    while entry do
+    local err = readdir(pathname, function(entry)
         -- ignore dotfiles
-        if not find(entry, '^%.') then
-            local fullname = pathname .. '/' .. entry
-            local info
-
-            info, err = fstat(fullname)
-            if err then
-                if err.type ~= ENOENT then
-                    return err
-                end
-            elseif info.type == 'directory' then
-                dirs[#dirs + 1] = fullname
-            elseif info.type == 'file' and sub(entry, -#suffix) == suffix then
-                files[#files + 1] = trim_cwd(fullname)
-            end
+        if find(entry, '^%.') then
+            return
         end
 
-        entry, err = dir:readdir()
+        local fullname = pathname .. '/' .. entry
+        local info, err = fstat(fullname)
         if err then
-            dir:closedir()
-            return err
+            if err.type ~= ENOENT then
+                return err
+            end
+        elseif info.type == 'directory' then
+            dirs[#dirs + 1] = fullname
+        elseif info.type == 'file' and sub(entry, -#suffix) == suffix then
+            files[#files + 1] = trim_cwd(fullname)
         end
+    end)
+
+    if err then
+        return err
     end
-    dir:closedir()
 
     for _, fullname in ipairs(dirs) do
         err = walkdir(files, fullname, suffix)
