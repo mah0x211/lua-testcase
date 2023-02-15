@@ -15,7 +15,6 @@ dependencies = {
     "mah0x211/assert >= 0.3.2",
     "mah0x211/errno >= 0.3.0",
     "mah0x211/selectex >= 0.1.0",
-    "mah0x211/string-trim >= 0.2.0",
 }
 build = {
     type = "builtin",
@@ -35,6 +34,7 @@ build = {
         ["testcase.printer"] = "lib/printer.lua",
         ["testcase.registry"] = "lib/registry.lua",
         ["testcase.runner"] = "lib/runner.lua",
+        ["testcase.trim"] = "lib/trim.lua",
         ["testcase.chdir"] = "src/chdir.c",
         ["testcase.fork"] = "src/fork.c",
         ["testcase.fstat"] = "src/fstat.c",

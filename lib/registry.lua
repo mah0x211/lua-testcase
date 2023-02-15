@@ -24,7 +24,7 @@ local pairs = pairs
 local sort = table.sort
 local getinfo = debug.getinfo
 local format = string.format
-local trim_prefix = require('string.trim').prefix
+local trim_prefix = require('testcase.trim').prefix
 local fs = require('testcase.filesystem')
 
 local function cmp_name(a, b)

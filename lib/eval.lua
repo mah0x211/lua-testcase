@@ -30,7 +30,7 @@ local traceback = debug.traceback
 local find = string.find
 local format = string.format
 local sub = string.sub
-local trim = require('string.trim')
+local trim = require('testcase.trim')
 -- constants
 local LUAVER = trim.prefix(_VERSION, 'Lua ')
 local LOADCHUNK = LUAVER == '5.1' and loadstring or load
@@ -76,7 +76,7 @@ local function checkline(ctx, line, lineno, head, tail)
     local opt_head, opt_tail = find(line, INLINE_OPT)
     if opt_head then
         -- verify option value
-        local optval = trim(sub(line, opt_tail + 1))
+        local optval = trim.space(sub(line, opt_tail + 1))
         local ok = VALID_OPTVAL[optval]
         if ok == nil then
             -- option value is not true|false
