@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2021 Masatoshi Fukunaga
+-- Copyright (C) 2023 Masatoshi Fukunaga
 --
 -- Permission is hereby granted, free of charge, to any person obtaining a copy
 -- of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,39 @@
 --
 local sub = string.sub
 local match = string.match
-local ipairs = ipairs
 
-local function getopts(arg)
-    local opts = {}
-
-    for _, s in ipairs(arg) do
-        if sub(s, 1, 1) == '-' then
-            local k, v = match(s, '^([^=]*)=?(.*)$')
-            if not v or v == '' then
-                opts[k] = true
-            else
-                opts[k] = v
-            end
-        else
-            opts[#opts + 1] = s
-        end
-    end
-
-    return opts
+--- trim_space returns s with all leading and trailing whitespace removed.
+--- @param s string
+--- @return string
+local function trim_space(s)
+    return match(s, '^%s*(.-)%s*$')
 end
 
-return getopts
+--- trim_suffix returns s with the suffix removed.
+--- @param s string
+--- @param suffix string
+--- @return string
+local function trim_suffix(s, suffix)
+    if sub(s, -#suffix) == suffix then
+        -- remove suffix
+        return sub(s, 1, #s - #suffix)
+    end
+    return s
+end
+
+--- trim_prefix returns s with the prefix removed.
+--- @param s string
+--- @param prefix string
+--- @return string
+local function trim_prefix(s, prefix)
+    if sub(s, 1, #prefix) == prefix then
+        return sub(s, #prefix + 1)
+    end
+    return s
+end
+
+return {
+    prefix = trim_prefix,
+    suffix = trim_suffix,
+    space = trim_space,
+}

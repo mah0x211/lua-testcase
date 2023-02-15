@@ -32,16 +32,14 @@ local setmetatable = setmetatable
 local sub = string.sub
 local find = string.find
 local format = string.format
-local select_len = require('selectex').len
-local select_head = require('selectex').head
-local select_tail = require('selectex').tail
-local is_string = require('isa').String
-local is_boolean = require('isa').Boolean
+local select_len = require('testcase.select').len
+local select_head = require('testcase.select').head
+local select_tail = require('testcase.select').tail
 -- constants
 local NEWLINE = '\r?\n'
 
 local function parse_format(s)
-    if not is_string(s) then
+    if type(s) ~= 'string' then
         return 0
     end
 
@@ -108,7 +106,7 @@ local function vstringify(doformat, s, ...)
 
     -- stringify all arguments
     for i = 1, narg do
-        if not is_string(argv[i]) then
+        if type(argv[i]) ~= 'string' then
             argv[i] = tostring(argv[i])
         end
     end
@@ -153,13 +151,13 @@ end
 --- @param doformat boolean default true
 --- @return table println
 local function new(prefix, suffix, doformat)
-    if prefix ~= nil and not is_string(prefix) then
+    if prefix ~= nil and type(prefix) ~= 'string' then
         error(format('invalid argument #1 (nil or string expected, got %s',
                      type(prefix)), 2)
-    elseif suffix ~= nil and not is_string(suffix) then
+    elseif suffix ~= nil and type(suffix) ~= 'string' then
         error(format('invalid argument #2 (nil or string expected, got %s',
                      type(suffix)), 2)
-    elseif doformat ~= nil and not is_boolean(doformat) then
+    elseif doformat ~= nil and type(doformat) ~= 'boolean' then
         error(format('invalid argument #3 (nil or boolean expected, got %s',
                      type(doformat)), 2)
     end

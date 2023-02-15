@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2021 Masatoshi Fukunaga
+-- Copyright (C) 2023 Masatoshi Fukunaga
 --
 -- Permission is hereby granted, free of charge, to any person obtaining a copy
 -- of this software and associated documentation files (the "Software"), to deal
@@ -19,27 +19,12 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 -- THE SOFTWARE.
 --
-local sub = string.sub
-local match = string.match
-local ipairs = ipairs
+local popen = io.popen
 
-local function getopts(arg)
-    local opts = {}
-
-    for _, s in ipairs(arg) do
-        if sub(s, 1, 1) == '-' then
-            local k, v = match(s, '^([^=]*)=?(.*)$')
-            if not v or v == '' then
-                opts[k] = true
-            else
-                opts[k] = v
-            end
-        else
-            opts[#opts + 1] = s
-        end
-    end
-
-    return opts
+--- getcwd
+--- @return string
+local function getcwd()
+    return popen('pwd'):read()
 end
 
-return getopts
+return getcwd

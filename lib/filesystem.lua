@@ -22,17 +22,15 @@
 --- file scope variables
 local sort = table.sort
 local find = string.find
-local has_prefix = require('string.contains').prefix
-local has_suffix = require('string.contains').suffix
-local trim_prefix = require('string.trim').prefix
-local trim_suffix = require('string.trim').suffix
-local getcwd = require('getcwd')
-local pchdir = require('chdir')
-local fstat = require('fstat')
-local dirname = require('dirname')
-local basename = require('basename')
-local realpath = require('realpath')
-local opendir = require('opendir')
+local match = string.match
+local sub = string.sub
+local trim_prefix = require('testcase.trim').prefix
+local trim_suffix = require('testcase.trim').suffix
+local fstat = require('testcase.fstat')
+local readdir = require('testcase.readdir')
+local realpath = require('testcase.realpath')
+local pchdir = require('testcase.chdir')
+local getcwd = require('testcase.getcwd')
 --- constants
 local ENOENT = require('errno').ENOENT
 local CWD = assert(getcwd())
@@ -41,7 +39,7 @@ local CWD = assert(getcwd())
 --- @param pathname string
 --- @return string pathname
 local function trim_cwd(pathname)
-    if has_prefix(pathname, CWD) then
+    if sub(pathname, 1, #CWD) == CWD then
         return trim_prefix(trim_prefix(pathname, CWD), '/')
     end
     return pathname
@@ -53,46 +51,29 @@ end
 --- @param pathname string
 --- @param suffix string
 local function walkdir(files, pathname, suffix)
-    local dir, err = opendir(pathname)
-
-    if err then
-        return err
-    end
-
-    -- list up
-    local entry
-    entry, err = dir:readdir()
-    if err then
-        dir:closedir()
-        return err
-    end
-
     local dirs = {}
-    while entry do
+    local err = readdir(pathname, function(entry)
         -- ignore dotfiles
-        if not find(entry, '^%.') then
-            local fullname = pathname .. '/' .. entry
-            local info
-
-            info, err = fstat(fullname)
-            if err then
-                if err.type ~= ENOENT then
-                    return err
-                end
-            elseif info.type == 'directory' then
-                dirs[#dirs + 1] = fullname
-            elseif info.type == 'file' and has_suffix(entry, suffix) then
-                files[#files + 1] = trim_cwd(fullname)
-            end
+        if find(entry, '^%.') then
+            return
         end
 
-        entry, err = dir:readdir()
+        local fullname = pathname .. '/' .. entry
+        local info, err = fstat(fullname)
         if err then
-            dir:closedir()
-            return err
+            if err.type ~= ENOENT then
+                return err
+            end
+        elseif info.type == 'directory' then
+            dirs[#dirs + 1] = fullname
+        elseif info.type == 'file' and sub(entry, -#suffix) == suffix then
+            files[#files + 1] = trim_cwd(fullname)
         end
+    end)
+
+    if err then
+        return err
     end
-    dir:closedir()
 
     for _, fullname in ipairs(dirs) do
         err = walkdir(files, fullname, suffix)
@@ -109,6 +90,12 @@ end
 --- @return table files
 --- @return string error
 local function getfiles(pathname, suffix)
+    if type(pathname) ~= 'string' then
+        error('pathname must be string', 2)
+    elseif suffix ~= nil and type(suffix) ~= 'string' then
+        error('suffix must be string', 2)
+    end
+
     local files = {}
     local info, err = fstat(pathname)
 
@@ -165,9 +152,9 @@ local function getstat(pathname)
     end
 
     info.realpath = rpath
-    info.basename = basename(rpath)
+    info.basename = match(rpath, '([^/]+)/*$') or '.'
     info.pathname = trim_cwd(rpath)
-    info.dirname = dirname(info.pathname)
+    info.dirname = match(info.pathname, '^(.+)/[^/]*$') or '/'
 
     return info
 end

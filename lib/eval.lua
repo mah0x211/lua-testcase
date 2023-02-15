@@ -30,8 +30,7 @@ local traceback = debug.traceback
 local find = string.find
 local format = string.format
 local sub = string.sub
-local has_suffix = require('string.contains').suffix
-local trim = require('string.trim')
+local trim = require('testcase.trim')
 -- constants
 local LUAVER = trim.prefix(_VERSION, 'Lua ')
 local LOADCHUNK = LUAVER == '5.1' and loadstring or load
@@ -77,7 +76,7 @@ local function checkline(ctx, line, lineno, head, tail)
     local opt_head, opt_tail = find(line, INLINE_OPT)
     if opt_head then
         -- verify option value
-        local optval = trim(sub(line, opt_tail + 1))
+        local optval = trim.space(sub(line, opt_tail + 1))
         local ok = VALID_OPTVAL[optval]
         if ok == nil then
             -- option value is not true|false
@@ -143,12 +142,13 @@ end
 --- eval loads filename and executes it
 --- @param filename string
 --- @return boolean ok
---- @return string error
+--- @return any error
 local function eval(filename)
+    local suffix = '_test.lua'
     local func
     local err
 
-    if has_suffix(filename, '_test.lua') then
+    if sub(filename, -#suffix) == suffix then
         func, err = loadfile(filename, 't')
         if not func then
             return false, err
