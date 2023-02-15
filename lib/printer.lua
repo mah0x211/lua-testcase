@@ -32,9 +32,9 @@ local setmetatable = setmetatable
 local sub = string.sub
 local find = string.find
 local format = string.format
-local select_len = require('selectex').len
-local select_head = require('selectex').head
-local select_tail = require('selectex').tail
+local select_len = require('testcase.select').len
+local select_head = require('testcase.select').head
+local select_tail = require('testcase.select').tail
 -- constants
 local NEWLINE = '\r?\n'
 

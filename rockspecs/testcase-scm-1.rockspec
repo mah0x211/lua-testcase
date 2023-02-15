@@ -14,7 +14,6 @@ dependencies = {
     "lua >= 5.1",
     "mah0x211/assert >= 0.3.2",
     "mah0x211/errno >= 0.3.0",
-    "mah0x211/selectex >= 0.1.0",
 }
 build = {
     type = "builtin",
@@ -42,6 +41,7 @@ build = {
         ["testcase.nosigpipe"] = "src/nosigpipe.c",
         ["testcase.readdir"] = "src/readdir.c",
         ["testcase.realpath"] = "src/realpath.c",
+        ["testcase.select"] = "src/select.c",
         ["testcase.timer"] = "src/timer.c",
     },
 }
