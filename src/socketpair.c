@@ -89,6 +89,14 @@ static int close_lua(lua_State *L)
     return 0;
 }
 
+static int fd_lua(lua_State *L)
+{
+    int *sock = luaL_checkudata(L, 1, MODULE_MT);
+
+    lua_pushinteger(L, *sock);
+    return 1;
+}
+
 static int tostring_lua(lua_State *L)
 {
     lua_pushfstring(L, MODULE_MT ": %p", lua_touserdata(L, 1));
@@ -151,6 +159,7 @@ LUALIB_API int luaopen_testcase_socketpair(lua_State *L)
             {NULL,         NULL        }
         };
         struct luaL_Reg method[] = {
+            {"fd",    fd_lua   },
             {"close", close_lua},
             {"read",  read_lua },
             {"write", write_lua},

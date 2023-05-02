@@ -14,6 +14,16 @@ local function test_new()
     assert.match(err, 'boolean expected', false)
 end
 
+local function test_fd()
+    local s1, s2 = assert(socketpair(true))
+    for _, sock in ipairs({
+        s1,
+        s2,
+    }) do
+        assert.greater(sock:fd(), 0)
+    end
+end
+
 local function test_read_write_close()
     local s1, s2 = assert(socketpair(true))
 
@@ -38,6 +48,7 @@ local function test_read_write_close()
 
     -- test that return error if operate on closed socket
     s1:close()
+    assert.equal(s1:fd(), -1)
     msg, err, again = s1:read()
     assert.is_nil(msg)
     assert.is_string(err)
@@ -51,4 +62,5 @@ local function test_read_write_close()
 end
 
 test_new()
+test_fd()
 test_read_write_close()
