@@ -24,6 +24,27 @@ local function test_fd()
     end
 end
 
+local function test_nonblock()
+    local s1, s2 = assert(socketpair(true))
+    for _, sock in ipairs({
+        s1,
+        s2,
+    }) do
+        -- test that return true if set nonblock
+        assert.is_true(sock:nonblock())
+
+        -- test that set nonblock to false and return previous value
+        assert.is_true(sock:nonblock(false))
+        assert.is_false(sock:nonblock())
+
+        -- test that throw error if argument is not a boolean
+        local err = assert.throws(function()
+            sock:nonblock('true')
+        end)
+        assert.match(err, 'boolean expected', false)
+    end
+end
+
 local function test_read_write_close()
     local s1, s2 = assert(socketpair(true))
 
@@ -63,4 +84,5 @@ end
 
 test_new()
 test_fd()
+test_nonblock()
 test_read_write_close()
