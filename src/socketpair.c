@@ -89,6 +89,58 @@ static int close_lua(lua_State *L)
     return 0;
 }
 
+static int nonblock_lua(lua_State *L)
+{
+    int *sock         = luaL_checkudata(L, 1, MODULE_MT);
+    int should_change = lua_gettop(L) > 1;
+    int enabled       = 0;
+
+    if (should_change) {
+        luaL_checktype(L, 2, LUA_TBOOLEAN);
+        enabled = lua_toboolean(L, 2);
+    }
+
+    // get O_NONBLOCK flag from socket
+    int flags = fcntl(*sock, F_GETFL, 0);
+    if (flags == -1) {
+        lua_pushnil(L);
+        lua_pushstring(L, strerror(errno));
+        return 2;
+    }
+
+    // set current O_NONBLOCK flag
+    if (flags & O_NONBLOCK) {
+        lua_pushboolean(L, 1);
+    } else {
+        lua_pushboolean(L, 0);
+    }
+
+    // change O_NONBLOCK flag
+    if (should_change) {
+        if (enabled) {
+            flags |= O_NONBLOCK;
+        } else {
+            flags &= ~O_NONBLOCK;
+        }
+
+        if (fcntl(*sock, F_SETFL, flags) == -1) {
+            lua_pushnil(L);
+            lua_pushstring(L, strerror(errno));
+            return 2;
+        }
+    }
+
+    return 1;
+}
+
+static int fd_lua(lua_State *L)
+{
+    int *sock = luaL_checkudata(L, 1, MODULE_MT);
+
+    lua_pushinteger(L, *sock);
+    return 1;
+}
+
 static int tostring_lua(lua_State *L)
 {
     lua_pushfstring(L, MODULE_MT ": %p", lua_touserdata(L, 1));
@@ -151,10 +203,12 @@ LUALIB_API int luaopen_testcase_socketpair(lua_State *L)
             {NULL,         NULL        }
         };
         struct luaL_Reg method[] = {
-            {"close", close_lua},
-            {"read",  read_lua },
-            {"write", write_lua},
-            {NULL,    NULL     }
+            {"fd",       fd_lua      },
+            {"nonblock", nonblock_lua},
+            {"close",    close_lua   },
+            {"read",     read_lua    },
+            {"write",    write_lua   },
+            {NULL,       NULL        }
         };
 
         // metamethods
