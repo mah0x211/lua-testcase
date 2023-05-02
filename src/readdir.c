@@ -49,7 +49,7 @@ static int readdir_lua(lua_State *L)
         if (lua_pcall(L, 1, 1, 0) != 0) {
             printf("call failed\n");
             closedir(dir);
-            le_new_error(L, -1);
+            lua_error_new(L, -1);
             return 1;
         } else if (lua_gettop(L) > 2 && lua_type(L, -1) != LUA_TNIL) {
             closedir(dir);
