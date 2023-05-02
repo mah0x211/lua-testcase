@@ -42,6 +42,7 @@ build = {
         ["testcase.readdir"] = "src/readdir.c",
         ["testcase.realpath"] = "src/realpath.c",
         ["testcase.select"] = "src/select.c",
+        ["testcase.socketpair"] = "src/socketpair.c",
         ["testcase.timer"] = "src/timer.c",
     },
 }
