@@ -25,11 +25,11 @@ local error = error
 local loadfile = loadfile
 local open = io.open
 local pcall = pcall
-local xpcall = xpcall
 local traceback = debug.traceback
 local find = string.find
 local format = string.format
 local sub = string.sub
+local xpcall = require('testcase.xpcall')
 local trim = require('testcase.trim')
 -- constants
 local LUAVER = trim.prefix(_VERSION, 'Lua ')
