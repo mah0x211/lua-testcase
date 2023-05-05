@@ -44,5 +44,6 @@ build = {
         ["testcase.select"] = "src/select.c",
         ["testcase.socketpair"] = "src/socketpair.c",
         ["testcase.timer"] = "src/timer.c",
+        ["testcase.xpcall"] = "src/xpcall.c",
     },
 }
