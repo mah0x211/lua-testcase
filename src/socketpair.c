@@ -78,6 +78,34 @@ static int read_lua(lua_State *L)
     return 1;
 }
 
+static inline int do_shutdown(lua_State *L, int how)
+{
+    int *sock = luaL_checkudata(L, 1, MODULE_MT);
+
+    if (shutdown(*sock, how) == 0) {
+        lua_pushboolean(L, 1);
+        return 1;
+    }
+    lua_pushboolean(L, 0);
+    lua_pushstring(L, strerror(errno));
+    return 2;
+}
+
+static int shutwr_lua(lua_State *L)
+{
+    return do_shutdown(L, SHUT_WR);
+}
+
+static int shutrd_lua(lua_State *L)
+{
+    return do_shutdown(L, SHUT_RD);
+}
+
+static int shutdown_lua(lua_State *L)
+{
+    return do_shutdown(L, SHUT_RDWR);
+}
+
 static int close_lua(lua_State *L)
 {
     int *sock = luaL_checkudata(L, 1, MODULE_MT);
@@ -206,6 +234,9 @@ LUALIB_API int luaopen_testcase_socketpair(lua_State *L)
             {"fd",       fd_lua      },
             {"nonblock", nonblock_lua},
             {"close",    close_lua   },
+            {"shutdown", shutdown_lua},
+            {"shutrd",   shutrd_lua  },
+            {"shutwr",   shutwr_lua  },
             {"read",     read_lua    },
             {"write",    write_lua   },
             {NULL,       NULL        }
