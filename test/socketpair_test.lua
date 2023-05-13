@@ -82,7 +82,22 @@ local function test_read_write_close()
     assert.is_nil(again)
 end
 
+local function test_shutdown()
+    local s = assert(socketpair(true))
+
+    -- test that shutdown read-part
+    assert.is_true(s:shutrd())
+
+    -- test that shutdown write-part
+    assert.is_true(s:shutwr())
+
+    -- test that shutdown all-part
+    s = assert(socketpair(true))
+    assert.is_true(s:shutdown())
+end
+
 test_new()
 test_fd()
 test_nonblock()
 test_read_write_close()
+test_shutdown()
