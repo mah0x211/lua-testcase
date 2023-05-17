@@ -39,7 +39,7 @@ static int write_lua(lua_State *L)
     const char *msg = luaL_checklstring(L, 2, &len);
     ssize_t n       = write(*sock, msg, len);
 
-    if (len == -1) {
+    if (n == -1) {
         lua_pushnil(L);
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             lua_pushnil(L);
