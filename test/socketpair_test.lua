@@ -45,6 +45,38 @@ local function test_nonblock()
     end
 end
 
+local function test_recv_and_send_buffer()
+    local s, _ = assert(socketpair(true))
+
+    -- test that return recv buffer size
+    local n = s:recvbuf()
+    assert.is_uint(n)
+
+    -- test that set recv buffer size and return previous value
+    local newsize = 1024 * 2
+    assert.equal(s:recvbuf(newsize), n)
+    n = s:recvbuf()
+    -- NOTE: the kernel may double the size of the buffer on linux
+    if n > newsize then
+        assert.equal(n, newsize * 2)
+    else
+        assert.equal(n, newsize)
+    end
+
+    -- test that return send buffer size
+    n = s:sendbuf()
+    assert.is_uint(n)
+
+    -- test that set send buffer size and return previous value
+    assert.equal(s:sendbuf(newsize), n)
+    n = s:sendbuf()
+    if n > newsize then
+        assert.equal(n, newsize * 2)
+    else
+        assert.equal(n, newsize)
+    end
+end
+
 local function test_return_again()
     local s, _ = assert(socketpair(true))
     -- test that return read again
@@ -54,6 +86,7 @@ local function test_return_again()
     assert.is_true(again)
 
     -- test that return write again
+    assert(s:sendbuf(1024 * 4))
     msg = string.rep('x', 1024 * 4)
     while s:write(msg) == #msg do
     end
@@ -118,6 +151,7 @@ end
 test_new()
 test_fd()
 test_nonblock()
+test_recv_and_send_buffer()
 test_return_again()
 test_read_write_close()
 test_shutdown()

@@ -117,6 +117,50 @@ static int close_lua(lua_State *L)
     return 0;
 }
 
+static inline int sockbuf(lua_State *L, int sockopt)
+{
+    int *sock         = luaL_checkudata(L, 1, MODULE_MT);
+    int should_change = lua_gettop(L) > 1;
+    socklen_t len     = sizeof(int);
+    int bufsize       = 0;
+    int newsize       = -1;
+
+    if (should_change) {
+        lua_settop(L, 2);
+        newsize = luaL_checkinteger(L, 2);
+    }
+
+    // get current buffer size
+    if (getsockopt(*sock, SOL_SOCKET, sockopt, (void *)&bufsize, &len) == -1) {
+        lua_pushnil(L);
+        lua_pushstring(L, strerror(errno));
+        return 2;
+    }
+    lua_pushinteger(L, bufsize);
+
+    // change buffer size
+    if (should_change) {
+        if (setsockopt(*sock, SOL_SOCKET, sockopt, (void *)&newsize,
+                       sizeof(int)) == -1) {
+            lua_pushnil(L);
+            lua_pushstring(L, strerror(errno));
+            return 2;
+        }
+    }
+
+    return 1;
+}
+
+static int sendbuf_lua(lua_State *L)
+{
+    return sockbuf(L, SO_RCVBUF);
+}
+
+static int recvbuf_lua(lua_State *L)
+{
+    return sockbuf(L, SO_RCVBUF);
+}
+
 static int nonblock_lua(lua_State *L)
 {
     int *sock         = luaL_checkudata(L, 1, MODULE_MT);
@@ -136,7 +180,7 @@ static int nonblock_lua(lua_State *L)
         return 2;
     }
 
-    // set current O_NONBLOCK flag
+    // push current O_NONBLOCK flag
     if (flags & O_NONBLOCK) {
         lua_pushboolean(L, 1);
     } else {
@@ -233,6 +277,8 @@ LUALIB_API int luaopen_testcase_socketpair(lua_State *L)
         struct luaL_Reg method[] = {
             {"fd",       fd_lua      },
             {"nonblock", nonblock_lua},
+            {"recvbuf",  recvbuf_lua },
+            {"sendbuf",  sendbuf_lua },
             {"close",    close_lua   },
             {"shutdown", shutdown_lua},
             {"shutrd",   shutrd_lua  },
