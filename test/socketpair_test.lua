@@ -45,6 +45,25 @@ local function test_nonblock()
     end
 end
 
+local function test_return_again()
+    local s, _ = assert(socketpair(true))
+    -- test that return read again
+    local msg, err, again = s:read()
+    assert.is_nil(msg)
+    assert.is_nil(err)
+    assert.is_true(again)
+
+    -- test that return write again
+    msg = string.rep('x', 1024 * 4)
+    while s:write(msg) == #msg do
+    end
+    local n
+    n, err, again = s:write(msg)
+    assert.is_nil(n)
+    assert.is_nil(err)
+    assert.is_true(again)
+end
+
 local function test_read_write_close()
     local s1, s2 = assert(socketpair(true))
 
@@ -99,5 +118,6 @@ end
 test_new()
 test_fd()
 test_nonblock()
+test_return_again()
 test_read_write_close()
 test_shutdown()
