@@ -40,6 +40,7 @@ local function test_getfiles()
         './test/printer_test.lua',
         './test/registry_test.lua',
         './test/runner_test.lua',
+        './test/shutdown_test.lua',
         './test/socketpair_test.lua',
         './test/testcase_test.lua',
         './test/timer_test.lua',

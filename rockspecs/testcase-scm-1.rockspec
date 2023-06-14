@@ -1,4 +1,3 @@
-rockspec_format = "3.0"
 package = "testcase"
 version = "scm-1"
 source = {
@@ -12,8 +11,8 @@ description = {
 }
 dependencies = {
     "lua >= 5.1",
-    "mah0x211/assert >= 0.3.2",
-    "mah0x211/errno >= 0.3.0",
+    "assert >= 0.5.2",
+    "errno >= 0.4.0",
 }
 build = {
     type = "builtin",
@@ -43,6 +42,7 @@ build = {
         ["testcase.readdir"] = "src/readdir.c",
         ["testcase.realpath"] = "src/realpath.c",
         ["testcase.select"] = "src/select.c",
+        ["testcase.shutdown"] = "src/shutdown.c",
         ["testcase.socketpair"] = "src/socketpair.c",
         ["testcase.timer"] = "src/timer.c",
         ["testcase.xpcall"] = "src/xpcall.c",
