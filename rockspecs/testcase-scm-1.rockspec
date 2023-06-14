@@ -35,6 +35,7 @@ build = {
         ["testcase.runner"] = "lib/runner.lua",
         ["testcase.trim"] = "lib/trim.lua",
         ["testcase.chdir"] = "src/chdir.c",
+        ["testcase.close"] = "src/close.c",
         ["testcase.fork"] = "src/fork.c",
         ["testcase.fstat"] = "src/fstat.c",
         ["testcase.getpid"] = "src/getpid.c",

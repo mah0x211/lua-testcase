@@ -4,6 +4,7 @@ local getpid = require('testcase.getpid')
 local PID = getpid()
 
 for _, pathname in ipairs({
+    'test/close_test.lua',
     'test/eval_test.lua',
     'test/exit_test.lua',
     'test/filesystem_test.lua',
