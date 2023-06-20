@@ -63,6 +63,9 @@ end
 local stdwriter = setmetatable({}, {
     __metatable = 1,
     __index = {
+        setvbuf = function()
+            -- do nothing
+        end,
         write = function(_, ...)
             printout(...)
         end,
