@@ -47,7 +47,6 @@ static int readdir_lua(lua_State *L)
         lua_pushvalue(L, 2);
         lua_pushstring(L, entry->d_name);
         if (lua_pcall(L, 1, 1, 0) != 0) {
-            printf("call failed\n");
             closedir(dir);
             lua_error_new(L, -1);
             return 1;

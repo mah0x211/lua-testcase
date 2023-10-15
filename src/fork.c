@@ -109,7 +109,6 @@ static int gc_lua(lua_State *L)
     pid_t pid = *p;
 
     if (pid == 0) {
-        printf("exit child\n");
         exit(EXIT_SUCCESS);
     } else if (pid > 1) {
         // kill process
