@@ -118,10 +118,9 @@ do
     end
     -- print error files
     if #errfiles > 0 then
-        print('\nUntested Files\n')
+        print('\nFailed to load %d test files.\n', #errfiles)
         for _, v in ipairs(errfiles) do
             print('- %s  ', v[1])
-            printCode('%s', v[2])
         end
     end
     runner.unblock()
@@ -132,8 +131,18 @@ do
     end
 
     local total, fmt = t:total()
-    print('### Total: %d successes, %d failures (' .. fmt .. ')', nsuccess,
-          nfailure, total, '\n')
+    print('### Total: %d successes, %d failures, %d load failures (' .. fmt ..
+              ')', nsuccess, nfailure, #errfiles, total, '\n')
+
+    -- print error files with error message
+    if #errfiles > 0 then
+        print('\nCannot load the following test files\n')
+        for _, v in ipairs(errfiles) do
+            print('- %s  ', v[1])
+            printCode('%s', v[2])
+        end
+        print('\n')
+    end
 
     -- exit failure
     if nfailure > 0 or #errfiles > 0 then
