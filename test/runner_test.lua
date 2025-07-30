@@ -76,10 +76,10 @@ local function test_runner()
         timer:start()
         calls = {}
         times = {}
-        local ok, nsuccess, nfailures, t, err = runner.run()
+        local ok, err, nsuccess, nfailures, t = runner.run()
         assert(not ok, 'runner ran')
-        assert.equal(nsuccess, 0)
-        assert.equal(nfailures, 0)
+        assert.is_nil(nsuccess)
+        assert.is_nil(nfailures)
         assert(not t, 'runner returns timer')
         assert.equal(err, 'cannot run test cases while blocking')
         assert.empty(times)
@@ -90,7 +90,7 @@ local function test_runner()
         timer:start()
         calls = {}
         times = {}
-        ok, nsuccess, nfailures, t, err = runner.run()
+        ok, err, nsuccess, nfailures, t = runner.run()
         assert(ok, 'runner did not run')
         assert.equal(nsuccess, 2)
         assert.equal(nfailures, 1)
@@ -116,7 +116,7 @@ local function test_runner()
         calls = {}
         times = {}
         before_all_error = true
-        ok, nsuccess, nfailures, t, err = runner.run()
+        ok, err, nsuccess, nfailures, t = runner.run()
         before_all_error = false
         assert(ok, 'runner did not run')
         assert.equal(nsuccess, 0)
@@ -131,7 +131,7 @@ local function test_runner()
         calls = {}
         times = {}
         before_each_error = true
-        ok, nsuccess, nfailures, t, err = runner.run()
+        ok, err, nsuccess, nfailures, t = runner.run()
         before_each_error = false
         assert(ok, 'runner did not run')
         assert.equal(nsuccess, 0)
@@ -148,7 +148,7 @@ local function test_runner()
         calls = {}
         times = {}
         after_each_error = true
-        ok, nsuccess, nfailures, t, err = runner.run()
+        ok, err, nsuccess, nfailures, t = runner.run()
         after_each_error = false
         assert(ok, 'runner did not run')
         assert.equal(nsuccess, 1)

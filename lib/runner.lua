@@ -43,8 +43,8 @@ local HR = string.rep('-', 80)
 --- @param t userdata
 --- @param func function
 --- @param hookfn function
---- @param hook_startfn string
---- @param hook_endfn string
+--- @param hook_startfn function
+--- @param hook_endfn function
 --- @return boolean ok
 --- @return string err
 --- @return number elapsed
@@ -87,7 +87,8 @@ end
 ---@param t userdata
 ---@param name string
 ---@param func function
----@return number
+---@return boolean ok
+---@return any err
 local function run_test(t, name, func)
     printf('- %s ... ', name)
     local ok, err, elapsed, fmt = call(t, func, test_hook, test_hook_start,
@@ -95,11 +96,11 @@ local function run_test(t, name, func)
     printf('%s (' .. fmt .. ')', ok and 'ok' or 'fail', elapsed)
     if ok then
         printf('\n')
-        return 1
+        return true
     end
     printf('  \n')
     printCode(err)
-    return 0
+    return false, err
 end
 
 local function setup_teardown_hook(...)
@@ -115,6 +116,7 @@ end
 ---@param name string
 ---@param func function
 ---@return boolean
+---@return any err
 local function run_setup_teadown(t, name, func)
     local ok, err = call(t, func, setup_teardown_hook, function()
         print('- ', name)
@@ -123,50 +125,89 @@ local function run_setup_teadown(t, name, func)
     if not ok and err then
         print('  failed to call ', name)
         printCode(err)
+        return false, err
     end
 
     return ok
 end
 
+--- run test file
+--- @param t userdata timer
+--- @param src table
+--- @return number nsuccess
+--- @return table[] errors
 local function run_file(t, src)
     local ntest = #src.tests
-    local nsuccess = 0
 
     print('')
     print(HR)
     print('%s: %d test cases', src.name, ntest)
     print(HR)
 
+    local errs = {}
     --- call before_all
-    if src.before_all and not run_setup_teadown(t, 'before_all', src.before_all) then
-        return 0
+    if src.before_all then
+        local ok, err = run_setup_teadown(t, 'before_all', src.before_all)
+        if not ok then
+            return 0, {
+                name = 'before_all',
+                error = err,
+            }
+        end
     end
 
+    local nsuccess = 0
     for _, test in ipairs(src.tests) do
         -- call before_each
-        if src.before_each and
-            not run_setup_teadown(t, 'before_each', src.before_each) then
-            break
+        if src.before_each then
+            local ok, err = run_setup_teadown(t, 'before_each', src.before_each)
+            if not ok then
+                errs[#errs + 1] = {
+                    name = 'before_each',
+                    error = err,
+                }
+                break
+            end
         end
 
         -- call test
-        nsuccess = nsuccess + run_test(t, test.name, test.func)
+        local ok, err = run_test(t, test.name, test.func)
+        if ok then
+            nsuccess = nsuccess + 1
+        else
+            errs[#errs + 1] = {
+                name = test.name,
+                error = err,
+            }
+        end
 
         -- call after_each
-        if src.after_each and
-            not run_setup_teadown(t, 'after_each', src.after_each) then
-            break
+        if src.after_each then
+            ok, err = run_setup_teadown(t, 'after_each', src.after_each)
+            if not ok then
+                errs[#errs + 1] = {
+                    name = 'after_each',
+                    error = err,
+                }
+                break
+            end
         end
     end
 
     -- call after_all function
     if src.after_all then
-        run_setup_teadown(t, 'after_all', src.after_all)
+        local ok, err = run_setup_teadown(t, 'after_all', src.after_all)
+        if not ok then
+            errs[#errs + 1] = {
+                name = 'after_all',
+                error = err,
+            }
+        end
     end
 
     print('\n%d successes, %d failures', nsuccess, ntest - nsuccess)
 
-    return nsuccess
+    return nsuccess, errs
 end
 
 local DO_NOT_RUN = false
@@ -181,18 +222,21 @@ end
 
 --- run registered test funcs
 ---@return boolean ok
----@return number nsuccess
----@return number nfailures
----@return userdata timer
----@return string error
+---@return string? err
+---@return number? nsuccess
+---@return number? nfailures
+---@return userdata? timer
+---@return table[]? errors
 local function run()
     if DO_NOT_RUN then
-        return false, 0, 0, nil, 'cannot run test cases while blocking'
+        return false, 'cannot run test cases while blocking'
     end
 
     local list, ntest = registry.getlist()
     local t = timer.new()
     local nsuccess = 0
+    local errors = {}
+    local nerrors = 0
     for _, src in ipairs(list) do
         -- move to test file directory
         local err = chdir()
@@ -200,15 +244,26 @@ local function run()
         err = chdir(src.dirname)
         assert(not err, err)
 
-        nsuccess = nsuccess + run_file(t, src)
+        local n, errs = run_file(t, src)
+        nsuccess = nsuccess + n
+        if #errs > 0 then
+            errors[#errors + 1] = {
+                name = src.name,
+                errors = errs,
+            }
+            nerrors = nerrors + #errs
+        end
     end
+    -- set the number of errors in the errors table
+    errors.count = nerrors
+
     -- move to the initial working directory
     chdir()
     print('')
     print(HR)
     print('')
 
-    return true, nsuccess, ntest - nsuccess, t
+    return true, nil, nsuccess, ntest - nsuccess, t, errors
 end
 
 return {

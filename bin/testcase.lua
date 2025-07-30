@@ -143,12 +143,12 @@ do
     if #errfiles > 0 then
         print('\nFailed to load %d test files.\n', #errfiles)
         for _, v in ipairs(errfiles) do
-            print('- %s  ', v[1])
+            print('- %s', v[1])
         end
     end
     runner.unblock()
 
-    local ok, nsuccess, nfailure, t, err = runner.run()
+    local ok, err, nsuccess, nfailure, t, errors = runner.run()
     if not ok then
         exit(-1, 'failed to runner.run(): ', err)
     end
@@ -157,11 +157,24 @@ do
     print('### Total: %d successes, %d failures, %d load failures (' .. fmt ..
               ')', nsuccess, nfailure, #errfiles, total, '\n')
 
+    -- print errors of each test cases
+    if #errors > 0 then
+        for _, v in ipairs(errors) do
+            print('#### %d testcases in %s failed\n', #v.errors, v.name)
+            for _, verr in ipairs(v.errors) do
+                print('- %s', verr.name)
+                printCode('%s', verr.error)
+                print('')
+            end
+        end
+        print('')
+    end
+
     -- print error files with error message
     if #errfiles > 0 then
-        print('\nCannot load the following test files\n')
+        print('#### %d test files failed to load\n', #errfiles)
         for _, v in ipairs(errfiles) do
-            print('- %s  ', v[1])
+            print('- %s', v[1])
             printCode('%s', v[2])
         end
         print('\n')
