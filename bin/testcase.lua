@@ -48,11 +48,59 @@ Options:
   --checkall    any file with a `.lua` extension will be evaluated as a test file
 ]]
 
+--- exit with code and message
+--- @param code number
+--- @param msg string?
+--- @param ... any
 local function exit(code, msg, ...)
     if msg then
         print(msg, ...)
     end
     osexit(code)
+end
+
+--- Check command line options and return options table
+--- @return table opts
+local function check_opts()
+    local opts = getopts(ARGV)
+    if opts['--help'] then
+        exit(0, USAGE)
+    elseif not opts[1] then
+        exit(-1, USAGE)
+    elseif opts['--coverage'] then
+        local ok, err = pcall(require, 'luacov')
+        if not ok then
+            exit(-1, 'failed to load luacov module: %s', err)
+        end
+    end
+
+    return opts
+end
+
+--- Get the pathname from command line arguments
+--- @return string pathname
+local function check_pathname(pathname)
+    -- confirm pathname
+    local path, err = realpath(pathname)
+    if err then
+        if err.type ~= ENOENT then
+            exit(-1, 'failed to resolve path %q: %s', pathname, err)
+        end
+        exit(-1, 'failed to resolve path %q', pathname)
+    end
+    return path
+end
+
+--- Get test files from the pathname
+--- @param opts table options
+--- @return table files
+local function get_files(opts)
+    local pathname = check_pathname(opts[1])
+    local files, err = getfiles(pathname, opts['--checkall'] and '.lua')
+    if err then
+        exit(-1, 'failed to get test files from %q: %s', pathname, err)
+    end
+    return files
 end
 
 --- loadfiles loads test files and runs it once for initialization
@@ -75,33 +123,8 @@ local function loadfiles(files)
 end
 
 do
-    local opts = getopts(ARGV)
-
-    if opts['--help'] then
-        exit(0, USAGE)
-    elseif not opts[1] then
-        exit(-1, USAGE)
-    elseif opts['--coverage'] then
-        local ok, err = pcall(require, 'luacov')
-        if not ok then
-            exit(-1, 'failed to load luacov module: %s', err)
-        end
-    end
-
-    -- confirm pathname
-    local pathname, err = realpath(opts[1])
-    if err then
-        if err.type ~= ENOENT then
-            exit(-1, 'failed to resolve path %q: %s', opts[1], err)
-        end
-        exit(-1, 'failed to resolve path %q', opts[1])
-    end
-
-    -- luacheck: ignore err
-    local files, err = getfiles(pathname, opts['--checkall'] and '.lua')
-    if err then
-        exit(-1, 'failed to get test files from %q: %s', pathname, err)
-    end
+    local opts = check_opts()
+    local files = get_files(opts)
 
     -- load test files
     runner.block()
@@ -120,12 +143,12 @@ do
     if #errfiles > 0 then
         print('\nFailed to load %d test files.\n', #errfiles)
         for _, v in ipairs(errfiles) do
-            print('- %s  ', v[1])
+            print('- %s', v[1])
         end
     end
     runner.unblock()
 
-    local ok, nsuccess, nfailure, t, err = runner.run()
+    local ok, err, nsuccess, nfailure, t, errors = runner.run()
     if not ok then
         exit(-1, 'failed to runner.run(): ', err)
     end
@@ -134,11 +157,24 @@ do
     print('### Total: %d successes, %d failures, %d load failures (' .. fmt ..
               ')', nsuccess, nfailure, #errfiles, total, '\n')
 
+    -- print errors of each test cases
+    if #errors > 0 then
+        for _, v in ipairs(errors) do
+            print('#### %d testcases in %s failed\n', #v.errors, v.name)
+            for _, verr in ipairs(v.errors) do
+                print('- %s', verr.name)
+                printCode('%s', verr.error)
+                print('')
+            end
+        end
+        print('')
+    end
+
     -- print error files with error message
     if #errfiles > 0 then
-        print('\nCannot load the following test files\n')
+        print('#### %d test files failed to load\n', #errfiles)
         for _, v in ipairs(errfiles) do
-            print('- %s  ', v[1])
+            print('- %s', v[1])
             printCode('%s', v[2])
         end
         print('\n')
