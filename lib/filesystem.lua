@@ -154,7 +154,10 @@ local function getstat(pathname)
     info.realpath = rpath
     info.basename = match(rpath, '([^/]+)/*$') or '.'
     info.pathname = trim_cwd(rpath)
-    info.dirname = match(info.pathname, '^(.+)/[^/]*$') or '/'
+    info.dirname = match(info.pathname, '^(.+)/[^/]*$')
+    if not info.dirname then
+        info.dirname = sub(info.pathname, 1, 1) == '/' and '/' or '.'
+    end
 
     return info
 end
