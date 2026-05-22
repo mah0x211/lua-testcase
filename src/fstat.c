@@ -23,12 +23,15 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 // lua
-#include <lua_errno.h>
+#include <lauxlib.h>
+#include <lua.h>
+// external library
+#include "lauxhlib.h"
+#include "lua_errno.h"
 
 static int fstat_lua(lua_State *L)
 {

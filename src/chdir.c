@@ -21,10 +21,9 @@
  */
 
 #include <errno.h>
-#include <string.h>
 #include <unistd.h>
 // lua
-#include <lua_errno.h>
+#include "lua_errno.h"
 
 static int chdir_lua(lua_State *L)
 {

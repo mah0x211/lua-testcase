@@ -23,7 +23,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 // lua
-#include <lauxlib.h>
 #include <lualib.h>
 
 static int getpid_lua(lua_State *L)
