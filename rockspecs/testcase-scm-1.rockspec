@@ -38,6 +38,7 @@ build = {
         ["testcase.fork"] = "src/fork.c",
         ["testcase.fstat"] = "src/fstat.c",
         ["testcase.getpid"] = "src/getpid.c",
+        ["testcase.nosigchld"] = "src/nosigchld.c",
         ["testcase.nosigpipe"] = "src/nosigpipe.c",
         ["testcase.readdir"] = "src/readdir.c",
         ["testcase.realpath"] = "src/realpath.c",
