@@ -41,7 +41,7 @@ typedef struct {
     int enabled;
 } nosigchld_t;
 
-// nosigchld(enabled) -> true | nil, errmsg
+// nosigchld(enabled) -> true | false, errmsg
 // enabled=true:  installs the noop SIGCHLD handler without SA_RESTART.
 // enabled=false: restores the previously saved SIGCHLD disposition.
 static int nosigchld_lua(lua_State *L)
