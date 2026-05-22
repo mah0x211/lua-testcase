@@ -21,9 +21,6 @@
  */
 #include <lauxlib.h>
 #include <lualib.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 static int len_lua(lua_State *L)
 {

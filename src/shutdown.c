@@ -22,7 +22,8 @@
 #include <errno.h>
 #include <sys/socket.h>
 // lua
-#include <lua_errno.h>
+#include "lauxhlib.h"
+#include "lua_errno.h"
 
 static int shutdown_lua(lua_State *L)
 {

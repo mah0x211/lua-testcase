@@ -22,12 +22,11 @@
 
 #include <dirent.h>
 #include <errno.h>
-#include <sys/types.h>
 // lua
 #include <lauxlib.h>
 #include <lualib.h>
 // lua module
-#include <lua_errno.h>
+#include "lua_errno.h"
 
 static int readdir_lua(lua_State *L)
 {

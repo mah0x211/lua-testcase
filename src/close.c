@@ -22,7 +22,11 @@
 #include <errno.h>
 #include <unistd.h>
 // lua
-#include <lua_errno.h>
+#include <lauxlib.h>
+#include <lua.h>
+// external library
+#include "lauxhlib.h"
+#include "lua_errno.h"
 
 static int close_lua(lua_State *L)
 {
