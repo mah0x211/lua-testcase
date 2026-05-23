@@ -44,6 +44,7 @@ build = {
         ["testcase.realpath"] = "src/realpath.c",
         ["testcase.select"] = "src/select.c",
         ["testcase.shutdown"] = "src/shutdown.c",
+        ["testcase.signal"] = "src/signal.c",
         ["testcase.socketpair"] = "src/socketpair.c",
         ["testcase.timer"] = "src/timer.c",
         ["testcase.xpcall"] = "src/xpcall.c",
