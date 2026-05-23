@@ -419,6 +419,120 @@ Returns arguments starting from position `n` (1-based). If `n` exceeds the argum
 
 ---
 
+## testcase.signal
+
+Provides functions for sending signals, controlling signal disposition, and querying signal metadata.
+
+```lua
+local signal = require('testcase.signal')
+```
+
+### ok, err = signal.kill(signame|signum, pid)
+
+Sends a signal to the process identified by `pid`.
+
+**Parameters**
+
+- `signame|signum:string|integer`: Signal name (case-insensitive, e.g. `"SIGTERM"`) or signal number.
+- `pid:integer`: Target process ID.
+
+**Returns**
+
+- `ok:boolean`: `true` on success, `false` on failure.
+- `err:string|nil`: Error message on failure.
+
+### ok, err = signal.raise(signame|signum)
+
+Sends a signal to the calling process.
+
+**Parameters**
+
+- `signame|signum:string|integer`: Signal name (case-insensitive) or signal number.
+
+**Returns**
+
+- `ok:boolean`: `true` on success, `false` on failure.
+- `err:string|nil`: Error message on failure.
+
+### ok, err = signal.sigignore(signame|signum)
+
+Sets the disposition of a signal to `SIG_IGN` so it is silently discarded when delivered.
+
+**Parameters**
+
+- `signame|signum:string|integer`: Signal name (case-insensitive) or signal number.
+
+**Returns**
+
+- `ok:boolean`: `true` on success, `false` on failure.
+- `err:string|nil`: Error message on failure.
+
+### ok, err = signal.sigdefault(signame|signum)
+
+Restores the disposition of a signal to `SIG_DFL` (the platform default action).
+
+**Parameters**
+
+- `signame|signum:string|integer`: Signal name (case-insensitive) or signal number.
+
+**Returns**
+
+- `ok:boolean`: `true` on success, `false` on failure.
+- `err:string|nil`: Error message on failure.
+
+### remsec = signal.alarm(sec)
+
+Schedules `SIGALRM` to be delivered to the calling process after `sec` seconds. Passing `0` cancels any pending alarm.
+
+**Parameters**
+
+- `sec:integer`: Seconds until `SIGALRM` is delivered; `0` cancels a pending alarm.
+
+**Returns**
+
+- `remsec:integer`: Seconds remaining on any previously scheduled alarm, or `0` if none was pending.
+
+### name = signal.tosigname(signum)
+
+Returns the canonical name for a signal number.
+
+**Parameters**
+
+- `signum:integer`: Signal number.
+
+**Returns**
+
+- `name:string|nil`: Signal name (e.g. `"SIGTERM"`), or `nil` if the number is not known.
+
+### num = signal.tosignum(signame)
+
+Returns the number for a signal name.
+
+**Parameters**
+
+- `signame:string`: Signal name (case-insensitive, e.g. `"SIGTERM"` or `"sigterm"`).
+
+**Returns**
+
+- `num:integer|nil`: Signal number, or `nil` if the name is not known.
+
+### names = signal.signames()
+
+Returns a bidirectional mapping table for all signals known on the current platform.
+
+```lua
+local names = signal.signames()
+-- names["SIGTERM"] == 15
+-- names[15]        == "SIGTERM"
+-- names[signum]    == { "SIGPOLL", "SIGIO" }  -- when multiple names share a number
+```
+
+**Returns**
+
+- `names:table`: A table where `names[signame] = signum` for every known name, and `names[signum] = signame` (unique) or `names[signum] = {signame, ...}` (aliases).
+
+---
+
 ## ok, err = testcase.shutdown(fd, how)
 
 Shuts down part or all of a socket's communication channel via `shutdown(2)`.
