@@ -793,6 +793,19 @@ local val, fmt, unit = t:elapsed()
 - `fmt:string`: Format string.
 - `unit:string`: Unit string.
 
+### sec = t:elapsed_sec()
+
+Returns the time elapsed since the last `start()` as fractional seconds
+without stopping the timer.
+
+```lua
+local sec = t:elapsed_sec()
+```
+
+**Returns**
+
+- `sec:number`: Elapsed time in seconds.
+
 ### val, fmt, unit = t:total()
 
 Returns the total accumulated time across all `start()`/`stop()` intervals.
