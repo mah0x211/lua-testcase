@@ -155,8 +155,9 @@ static int fork_lua(lua_State *L)
 LUALIB_API int luaopen_testcase_fork(lua_State *L)
 {
     struct luaL_Reg mmethod[] = {
-        {"__gc", gc_lua},
-        {NULL,   NULL  }
+        {"__gc",       gc_lua      },
+        {"__tostring", tostring_lua},
+        {NULL,         NULL        }
     };
     struct luaL_Reg method[] = {
         {"pid",      pid_lua     },

@@ -25,10 +25,6 @@
 
 static int xpcall_lua(lua_State *L)
 {
-    int top = lua_gettop(L);
-    int rc  = 0;
-    int ref = LUA_NOREF;
-
     luaL_checktype(L, 1, LUA_TFUNCTION);
     luaL_checktype(L, 2, LUA_TFUNCTION);
     lua_settop(L, 2);
