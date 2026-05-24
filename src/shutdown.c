@@ -22,6 +22,9 @@
 #include <errno.h>
 #include <sys/socket.h>
 // lua
+#include <lauxlib.h>
+#include <lua.h>
+// external library
 #include "lauxhlib.h"
 #include "lua_errno.h"
 

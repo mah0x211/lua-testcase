@@ -28,7 +28,7 @@
 #include <unistd.h>
 // lualib
 #include <lauxlib.h>
-#include <lualib.h>
+#include <lua.h>
 
 #define MODULE_MT "testcase.socketpair"
 

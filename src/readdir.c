@@ -24,8 +24,8 @@
 #include <errno.h>
 // lua
 #include <lauxlib.h>
-#include <lualib.h>
-// lua module
+#include <lua.h>
+// external library
 #include "lua_errno.h"
 
 static int readdir_lua(lua_State *L)

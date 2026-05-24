@@ -20,12 +20,13 @@
  * IN THE SOFTWARE.
  */
 #include <errno.h>
-#include <lauxlib.h>
-#include <lualib.h>
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+// lua
+#include <lauxlib.h>
+#include <lua.h>
 
 #define NSEC_IN_SEC 1000000000
 

@@ -29,7 +29,7 @@
 #include <unistd.h>
 // lua
 #include <lauxlib.h>
-#include <lualib.h>
+#include <lua.h>
 
 #define PROC_MT "testcase.process"
 

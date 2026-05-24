@@ -23,6 +23,9 @@
 #include <errno.h>
 #include <unistd.h>
 // lua
+#include <lauxlib.h>
+#include <lua.h>
+// external library
 #include "lua_errno.h"
 
 static int chdir_lua(lua_State *L)

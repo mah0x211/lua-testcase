@@ -24,7 +24,6 @@
 #include <signal.h>
 #include <string.h>
 // lua
-#include <lauxlib.h>
 #include <lua.h>
 
 // Pure C no-op handler: async-signal-safe, never calls into Lua.
