@@ -30,8 +30,19 @@
 #include <lauxlib.h>
 #include <lua.h>
 // external library
-#include "lauxhlib.h"
 #include "lua_errno.h"
+
+static inline void pushint2tbl(lua_State *L, const char *k, lua_Integer v)
+{
+    lua_pushinteger(L, v);
+    lua_setfield(L, -2, k);
+}
+
+static inline void pushstr2tbl(lua_State *L, const char *k, const char *v)
+{
+    lua_pushstring(L, v);
+    lua_setfield(L, -2, k);
+}
 
 static int fstat_lua(lua_State *L)
 {
@@ -42,8 +53,11 @@ static int fstat_lua(lua_State *L)
     char perm[6]     = {0};
 
     // followsymlinks option: default true
-    if (!lauxh_optboolean(L, 2, 1)) {
-        flgs |= O_NOFOLLOW;
+    if (!lua_isnoneornil(L, 2)) {
+        luaL_checktype(L, 2, LUA_TBOOLEAN);
+        if (!lua_toboolean(L, 2)) {
+            flgs |= O_NOFOLLOW;
+        }
     }
     lua_settop(L, 1);
 
@@ -65,42 +79,42 @@ static int fstat_lua(lua_State *L)
     // set fields
     lua_createtable(L, 0, 14);
     // add descriptor
-    lauxh_pushint2tbl(L, "dev", buf.st_dev);
-    lauxh_pushint2tbl(L, "ino", buf.st_ino);
-    lauxh_pushint2tbl(L, "mode", buf.st_mode);
-    lauxh_pushint2tbl(L, "nlink", buf.st_nlink);
-    lauxh_pushint2tbl(L, "uid", buf.st_uid);
-    lauxh_pushint2tbl(L, "gid", buf.st_gid);
-    lauxh_pushint2tbl(L, "rdev", buf.st_rdev);
-    lauxh_pushint2tbl(L, "size", buf.st_size);
-    lauxh_pushint2tbl(L, "blksize", buf.st_blksize);
-    lauxh_pushint2tbl(L, "blocks", buf.st_blocks);
-    lauxh_pushint2tbl(L, "atime", buf.st_atime);
-    lauxh_pushint2tbl(L, "mtime", buf.st_mtime);
-    lauxh_pushint2tbl(L, "ctime", buf.st_ctime);
+    pushint2tbl(L, "dev", buf.st_dev);
+    pushint2tbl(L, "ino", buf.st_ino);
+    pushint2tbl(L, "mode", buf.st_mode);
+    pushint2tbl(L, "nlink", buf.st_nlink);
+    pushint2tbl(L, "uid", buf.st_uid);
+    pushint2tbl(L, "gid", buf.st_gid);
+    pushint2tbl(L, "rdev", buf.st_rdev);
+    pushint2tbl(L, "size", buf.st_size);
+    pushint2tbl(L, "blksize", buf.st_blksize);
+    pushint2tbl(L, "blocks", buf.st_blocks);
+    pushint2tbl(L, "atime", buf.st_atime);
+    pushint2tbl(L, "mtime", buf.st_mtime);
+    pushint2tbl(L, "ctime", buf.st_ctime);
     snprintf(perm, sizeof(perm), "%#o", buf.st_mode & 01777);
-    lauxh_pushstr2tbl(L, "perm", perm);
+    pushstr2tbl(L, "perm", perm);
     switch (buf.st_mode & S_IFMT) {
     case S_IFREG:
-        lauxh_pushstr2tbl(L, "type", "file");
+        pushstr2tbl(L, "type", "file");
         break;
     case S_IFDIR:
-        lauxh_pushstr2tbl(L, "type", "directory");
+        pushstr2tbl(L, "type", "directory");
         break;
     case S_IFLNK:
-        lauxh_pushstr2tbl(L, "type", "symlink");
+        pushstr2tbl(L, "type", "symlink");
         break;
     case S_IFCHR:
-        lauxh_pushstr2tbl(L, "type", "character_device");
+        pushstr2tbl(L, "type", "character_device");
         break;
     case S_IFBLK:
-        lauxh_pushstr2tbl(L, "type", "block_device");
+        pushstr2tbl(L, "type", "block_device");
         break;
     case S_IFSOCK:
-        lauxh_pushstr2tbl(L, "type", "socket");
+        pushstr2tbl(L, "type", "socket");
         break;
     case S_IFIFO:
-        lauxh_pushstr2tbl(L, "type", "fifo");
+        pushstr2tbl(L, "type", "fifo");
         break;
     }
 

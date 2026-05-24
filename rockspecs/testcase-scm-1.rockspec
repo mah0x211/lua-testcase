@@ -1,3 +1,4 @@
+rockspec_format = "3.0"
 package = "testcase"
 version = "scm-1"
 source = {
@@ -12,10 +13,26 @@ description = {
 dependencies = {
     "lua >= 5.1",
     "assert >= 0.5.2",
+    "error >= 0.15.1",
     "errno >= 0.4.0",
 }
+build_dependencies = {
+    "luarocks-build-hooks >= 0.7.0",
+}
 build = {
-    type = "builtin",
+    type = "hooks",
+    before_build = {
+        "$(extra-vars)",
+    },
+    extra_variables = {
+        CFLAGS = "-Wall -Wno-trigraphs -Wmissing-field-initializers -Wreturn-type -Wmissing-braces -Wparentheses -Wno-switch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wuninitialized -Wunknown-pragmas -Wshadow -Wsign-compare",
+    },
+    conditional_variables = {
+        TESTCASE_COVERAGE = {
+            CFLAGS = "--coverage",
+            LIBFLAG = "--coverage",
+        },
+    },
     install = {
         bin = {
             testcase = "bin/testcase.lua",
@@ -33,17 +50,53 @@ build = {
         ["testcase.registry"] = "lib/registry.lua",
         ["testcase.runner"] = "lib/runner.lua",
         ["testcase.trim"] = "lib/trim.lua",
-        ["testcase.chdir"] = "src/chdir.c",
-        ["testcase.close"] = "src/close.c",
+        ["testcase.chdir"] = {
+            sources = "src/chdir.c",
+            incdirs = {
+                "$(DEP_ERRNO_INCDIR)",
+                "$(DEP_ERROR_INCDIR)",
+            },
+        },
+        ["testcase.close"] = {
+            sources = "src/close.c",
+            incdirs = {
+                "$(DEP_ERRNO_INCDIR)",
+                "$(DEP_ERROR_INCDIR)",
+            },
+        },
         ["testcase.fork"] = "src/fork.c",
-        ["testcase.fstat"] = "src/fstat.c",
+        ["testcase.fstat"] = {
+            sources = "src/fstat.c",
+            incdirs = {
+                "$(DEP_ERRNO_INCDIR)",
+                "$(DEP_ERROR_INCDIR)",
+            },
+        },
         ["testcase.getpid"] = "src/getpid.c",
         ["testcase.nosigchld"] = "src/nosigchld.c",
         ["testcase.nosigpipe"] = "src/nosigpipe.c",
-        ["testcase.readdir"] = "src/readdir.c",
-        ["testcase.realpath"] = "src/realpath.c",
+        ["testcase.readdir"] = {
+            sources = "src/readdir.c",
+            incdirs = {
+                "$(DEP_ERRNO_INCDIR)",
+                "$(DEP_ERROR_INCDIR)",
+            },
+        },
+        ["testcase.realpath"] = {
+            sources = "src/realpath.c",
+            incdirs = {
+                "$(DEP_ERRNO_INCDIR)",
+                "$(DEP_ERROR_INCDIR)",
+            },
+        },
         ["testcase.select"] = "src/select.c",
-        ["testcase.shutdown"] = "src/shutdown.c",
+        ["testcase.shutdown"] = {
+            sources = "src/shutdown.c",
+            incdirs = {
+                "$(DEP_ERRNO_INCDIR)",
+                "$(DEP_ERROR_INCDIR)",
+            },
+        },
         ["testcase.signal"] = "src/signal.c",
         ["testcase.socketpair"] = "src/socketpair.c",
         ["testcase.timer"] = "src/timer.c",

@@ -27,7 +27,6 @@
 // lua
 #include <lauxlib.h>
 #include <lua.h>
-#include <lualib.h>
 // external library
 #include "lua_errno.h"
 

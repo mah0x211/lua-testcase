@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 #include <lauxlib.h>
-#include <lualib.h>
+#include <lua.h>
 
 static int len_lua(lua_State *L)
 {
