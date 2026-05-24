@@ -12,6 +12,7 @@ description = {
 dependencies = {
     "lua >= 5.1",
     "assert >= 0.5.2",
+    "error >= 0.15.1",
     "errno >= 0.4.0",
 }
 build = {
