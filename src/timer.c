@@ -27,6 +27,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#define NSEC_IN_SEC 1000000000
+
 #if defined(__APPLE__)
 # include <mach/mach.h>
 # include <mach/mach_time.h>
@@ -41,8 +43,8 @@ static inline int getnsec_ex(struct timespec *ts)
     }
 
     ns          = mach_absolute_time() * tbinfo.numer / tbinfo.denom;
-    ts->tv_sec  = ns / 1000000000;
-    ts->tv_nsec = ns - (ts->tv_sec * 1000000000);
+    ts->tv_sec  = ns / NSEC_IN_SEC;
+    ts->tv_nsec = ns - (ts->tv_sec * NSEC_IN_SEC);
     return 0;
 }
 
@@ -63,7 +65,7 @@ static inline int getnsec(uint64_t *ns)
         return -1;
     }
 
-    *ns = (uint64_t)ts.tv_sec * 1000000000 + (uint64_t)ts.tv_nsec;
+    *ns = (uint64_t)ts.tv_sec * NSEC_IN_SEC + (uint64_t)ts.tv_nsec;
     return 0;
 }
 
@@ -110,7 +112,7 @@ static int nsec2utime(lua_State *L, uint64_t ns)
     return 3;
 }
 
-static int elapsed_lua(lua_State *L)
+static int get_elapsed_lua(lua_State *L, int in_sec)
 {
     testcase_timer_t *t =
         (testcase_timer_t *)luaL_checkudata(L, 1, TESTCASE_TIMER_MT);
@@ -120,9 +122,24 @@ static int elapsed_lua(lua_State *L)
         lua_pushnil(L);
         lua_pushstring(L, strerror(errno));
         return 2;
+    } else if (in_sec) {
+        // push elapsed time in seconds
+        lua_pushnumber(L, (double)(ns - t->start) / NSEC_IN_SEC);
+        return 1;
     }
 
+    // push elapsed time in appropriate unit (ns, us, ms, s, min)
     return nsec2utime(L, ns - t->start);
+}
+
+static int elapsed_lua(lua_State *L)
+{
+    return get_elapsed_lua(L, 0);
+}
+
+static int elapsed_sec_lua(lua_State *L)
+{
+    return get_elapsed_lua(L, 1);
 }
 
 static int stop_lua(lua_State *L)
@@ -206,7 +223,7 @@ static int sleep_lua(lua_State *L)
     struct timespec ts = {
         .tv_sec = sec,
     };
-    ts.tv_nsec = (sec - ts.tv_sec) * 1000000000;
+    ts.tv_nsec = (sec - ts.tv_sec) * NSEC_IN_SEC;
 
     nanosleep(&ts, NULL);
 
@@ -222,7 +239,7 @@ static int nanotime_lua(lua_State *L)
         lua_pushstring(L, strerror(errno));
         return 2;
     }
-    lua_pushnumber(L, (double)ts.tv_sec + ((double)ts.tv_nsec / 1000000000));
+    lua_pushnumber(L, (double)ts.tv_sec + ((double)ts.tv_nsec / NSEC_IN_SEC));
 
     return 1;
 }
@@ -236,12 +253,13 @@ LUALIB_API int luaopen_testcase_timer(lua_State *L)
             {NULL,         NULL        }
         };
         struct luaL_Reg method[] = {
-            {"reset",   reset_lua  },
-            {"total",   total_lua  },
-            {"start",   start_lua  },
-            {"stop",    stop_lua   },
-            {"elapsed", elapsed_lua},
-            {NULL,      NULL       }
+            {"reset",       reset_lua      },
+            {"total",       total_lua      },
+            {"start",       start_lua      },
+            {"stop",        stop_lua       },
+            {"elapsed",     elapsed_lua    },
+            {"elapsed_sec", elapsed_sec_lua},
+            {NULL,          NULL           }
         };
         struct luaL_Reg *ptr = mmethod;
 
