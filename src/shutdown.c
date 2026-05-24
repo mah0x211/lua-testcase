@@ -20,13 +20,26 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 #include <errno.h>
+#include <stdio.h>
 #include <sys/socket.h>
+#include <unistd.h>
 // lua
 #include <lauxlib.h>
 #include <lua.h>
+#include <lualib.h>
 // external library
-#include "lauxhlib.h"
 #include "lua_errno.h"
+
+static inline FILE **checkfilep(lua_State *L, int idx)
+{
+#if LUA_VERSION_NUM >= 502
+    luaL_Stream *stream =
+        (luaL_Stream *)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+    return &stream->f;
+#else
+    return (FILE **)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+#endif
+}
 
 static int shutdown_lua(lua_State *L)
 {
@@ -42,7 +55,7 @@ static int shutdown_lua(lua_State *L)
     if (lua_isnumber(L, 1)) {
         fd = luaL_checkinteger(L, 1);
     } else {
-        FILE **fp = lauxh_checkfilep(L, 1);
+        FILE **fp = checkfilep(L, 1);
         if (*fp) {
             fd = fileno(*fp);
         }
