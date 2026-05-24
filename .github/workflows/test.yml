@@ -50,7 +50,7 @@ jobs:
     -
       name: Install
       run: |
-        luarocks make
+        TESTCASE_COVERAGE=1 luarocks make
     -
       name: Install Tools
       run: |
@@ -60,10 +60,14 @@ jobs:
       run: |
         lua ./test/testall.lua
     -
+      name: Generate C coverage report
+      run: |
+        sh ./covgen.sh
+    -
       name: Upload lua coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
         use_oidc: true
         disable_search: true
-        files: ./luacov.report.out
+        files: ./luacov.report.out, ./coverage/lcov.info
         flags: unittests
