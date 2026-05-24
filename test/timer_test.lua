@@ -107,9 +107,33 @@ local function test_stop_total_reset()
     assert.equal(tunit, 'ns')
 end
 
+local function test_elapsed_sec()
+    local t = timer.new()
+    t:start()
+    -- sleep 60ms
+    timer.sleep(0.06)
+
+    -- test that timer:elapsed_sec() returns elapsed time in seconds as a number
+    local v = assert(t:elapsed_sec())
+    assert.is_unsigned(v)
+    assert.is_true(0.05 < v and v < 0.1)
+
+    -- test that the elapsed time increases
+    local prev = v
+    v = assert(t:elapsed_sec())
+    assert.greater(v, prev)
+
+    -- test that after start, elapsed_sec returns a smaller value
+    prev = v
+    assert(t:start())
+    v = assert(t:elapsed_sec())
+    assert.less(v, prev)
+end
+
 test_usleep()
 test_sleep()
 test_new()
 test_start()
 test_elapsed()
+test_elapsed_sec()
 test_stop_total_reset()
