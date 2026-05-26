@@ -19,8 +19,8 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+// lua
 #include <lauxlib.h>
-#include <lua.h>
 
 static int len_lua(lua_State *L)
 {

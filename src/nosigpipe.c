@@ -20,7 +20,9 @@
  * IN THE SOFTWARE.
  **/
 
+// lua
 #include <lua.h>
+// system
 #include <signal.h>
 
 LUALIB_API int luaopen_testcase_nosigpipe(lua_State *L)

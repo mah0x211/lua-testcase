@@ -20,10 +20,11 @@
  * IN THE SOFTWARE.
  */
 
-#include <sys/types.h>
-#include <unistd.h>
 // lua
 #include <lua.h>
+// system
+#include <sys/types.h>
+#include <unistd.h>
 
 static int getpid_lua(lua_State *L)
 {

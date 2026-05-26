@@ -20,15 +20,15 @@
  * IN THE SOFTWARE.
  */
 
+// lua
+#include <lauxlib.h>
+// system
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-// lualib
-#include <lauxlib.h>
-#include <lua.h>
 
 #define MODULE_MT "testcase.socketpair"
 

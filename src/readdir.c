@@ -20,13 +20,13 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-#include <dirent.h>
-#include <errno.h>
+// depend
+#include "lua_errno.h"
 // lua
 #include <lauxlib.h>
-#include <lua.h>
-// external library
-#include "lua_errno.h"
+// system
+#include <dirent.h>
+#include <errno.h>
 
 static int readdir_lua(lua_State *L)
 {

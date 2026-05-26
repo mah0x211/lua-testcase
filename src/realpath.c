@@ -20,15 +20,15 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
+// depend
+#include "lua_errno.h"
+// lua
+#include <lauxlib.h>
+// system
 #include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <unistd.h>
-// lua
-#include <lauxlib.h>
-#include <lua.h>
-// external library
-#include "lua_errno.h"
 
 static size_t REALPATH_BUFSIZ = PATH_MAX;
 static char *REALPATH_BUF     = NULL;

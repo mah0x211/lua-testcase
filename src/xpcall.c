@@ -20,8 +20,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 // lua
+// lua
 #include <lauxlib.h>
-#include <lua.h>
 
 static int xpcall_lua(lua_State *L)
 {

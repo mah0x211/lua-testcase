@@ -20,17 +20,17 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
+// depend
+#include "lua_errno.h"
+// lua
+#include <lauxlib.h>
+// system
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-// lua
-#include <lauxlib.h>
-#include <lua.h>
-// external library
-#include "lua_errno.h"
 
 static inline void pushint2tbl(lua_State *L, const char *k, lua_Integer v)
 {

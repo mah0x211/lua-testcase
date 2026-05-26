@@ -20,13 +20,13 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
-#include <errno.h>
-#include <unistd.h>
+// depend
+#include "lua_errno.h"
 // lua
 #include <lauxlib.h>
-#include <lua.h>
-// external library
-#include "lua_errno.h"
+// system
+#include <errno.h>
+#include <unistd.h>
 
 static int chdir_lua(lua_State *L)
 {
