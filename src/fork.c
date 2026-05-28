@@ -20,6 +20,9 @@
  * IN THE SOFTWARE.
  */
 
+// lua
+#include <lauxlib.h>
+// system
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -27,9 +30,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-// lua
-#include <lauxlib.h>
-#include <lua.h>
 
 #define PROC_MT "testcase.process"
 

@@ -20,11 +20,12 @@
  * IN THE SOFTWARE.
  */
 
+// lua
+#include <lua.h>
+// system
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
-// lua
-#include <lua.h>
 
 // Pure C no-op handler: async-signal-safe, never calls into Lua.
 // sa_flags=0 (no SA_RESTART) means blocked syscalls like poll() return EINTR

@@ -19,14 +19,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+// lua
+#include <lauxlib.h>
+// system
 #include <errno.h>
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-// lua
-#include <lauxlib.h>
-#include <lua.h>
 
 #define NSEC_IN_SEC 1000000000
 

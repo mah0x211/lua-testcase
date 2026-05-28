@@ -19,16 +19,16 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *  DEALINGS IN THE SOFTWARE.
  */
+// depend
+#include "lua_errno.h"
+// lua
+#include <lauxlib.h>
+#include <lualib.h>
+// system
 #include <errno.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
-// lua
-#include <lauxlib.h>
-#include <lua.h>
-#include <lualib.h>
-// external library
-#include "lua_errno.h"
 
 static inline FILE **checkfilep(lua_State *L, int idx)
 {
