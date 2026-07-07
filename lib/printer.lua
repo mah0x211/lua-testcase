@@ -32,15 +32,18 @@ local setmetatable = setmetatable
 local sub = string.sub
 local find = string.find
 local format = string.format
+local unpack = unpack or table.unpack
 local select_len = require('testcase.select').len
-local select_head = require('testcase.select').head
 local select_tail = require('testcase.select').tail
 -- constants
 local NEWLINE = '\r?\n'
 
-local function parse_format(s)
+local function parse_format(s, cb)
     if type(s) ~= 'string' then
         return 0
+    elseif cb ~= nil and type(cb) ~= 'function' then
+        error(format('invalid argument #2 (nil or function expected, got %s)',
+                     type(cb)), 2)
     end
 
     local len = #s
@@ -62,6 +65,11 @@ local function parse_format(s)
             if i - open > 1 then
                 -- found parameter '%<c> '
                 nparam = nparam + 1
+                if cb then
+                    -- notify the conversion specifier char and its 1-based
+                    -- argument offset
+                    cb(sub(s, open + 1, open + 1), nparam)
+                end
             end
             open = 0
         end
@@ -70,6 +78,9 @@ local function parse_format(s)
     if open > 0 then
         -- found specifier '%<c>'
         nparam = nparam + 1
+        if cb then
+            cb(sub(s, open + 1, open + 1), nparam)
+        end
     end
 
     return nparam
@@ -93,7 +104,19 @@ local function vstringify(doformat, s, ...)
 
         if nparam > 0 then
             narg = narg - nparam
-            local ok, res = pcall(format, s, select_head(nparam, ...))
+            -- pre-stringify the arguments corresponding to the 's' conversion
+            -- specifier so that string.format does not fail on non-string
+            -- values (e.g. an error table). this matches Lua 5.3+ behavior,
+            -- where '%s' implicitly applies tostring() to its argument.
+            parse_format(s, function(c, offset)
+                if c == 's' then
+                    local v = argv[offset + 1]
+                    if type(v) ~= 'string' then
+                        argv[offset + 1] = tostring(v)
+                    end
+                end
+            end)
+            local ok, res = pcall(format, s, unpack(argv, 2, nparam + 1))
             if not ok then
                 error(res, 3)
             end
