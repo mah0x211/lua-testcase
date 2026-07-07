@@ -16,6 +16,7 @@ for _, pathname in ipairs({
     'test/runner_test.lua',
     'test/shutdown_test.lua',
     'test/socketpair_test.lua',
+    'test/stat_test.lua',
     'test/testcase_test.lua',
     'test/timer_test.lua',
 }) do

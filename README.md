@@ -288,6 +288,31 @@ The stat table has the following fields:
 
 ---
 
+## stat, err = testcase.stat(pathname [, followsymlinks])
+
+Retrieves file status for the given path via `stat(2)` / `lstat(2)`.
+
+```lua
+local stat = require('testcase.stat')
+local info, err = stat('./foo/bar')
+```
+
+Unlike `testcase.fstat`, this calls `stat(2)` / `lstat(2)` directly instead of `open(2)` + `fstat(2)`, so it also succeeds on unix domain sockets, fifos and device special files. Prefer `testcase.stat` over `testcase.fstat` in new code.
+
+**Parameters**
+
+- `pathname:string`: Path to the file.
+- `followsymlinks:boolean`: Follow symbolic links via `stat(2)` when `true` (default). Use `lstat(2)` when `false`.
+
+**Returns**
+
+- `stat:table|nil`: Stat table on success, `nil` on failure.
+- `err:error|nil`: Error object on failure.
+
+The stat table has the same fields as `testcase.fstat` (see above).
+
+---
+
 ## pid = testcase.getpid()
 
 Returns the PID of the calling process.

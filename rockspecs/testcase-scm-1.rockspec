@@ -72,6 +72,13 @@ build = {
                 "$(DEP_ERROR_INCDIR)",
             },
         },
+        ["testcase.stat"] = {
+            sources = "src/stat.c",
+            incdirs = {
+                "$(DEP_ERRNO_INCDIR)",
+                "$(DEP_ERROR_INCDIR)",
+            },
+        },
         ["testcase.getpid"] = "src/getpid.c",
         ["testcase.nosigchld"] = "src/nosigchld.c",
         ["testcase.nosigpipe"] = "src/nosigpipe.c",
