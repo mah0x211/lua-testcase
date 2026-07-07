@@ -26,7 +26,7 @@ local match = string.match
 local sub = string.sub
 local trim_prefix = require('testcase.trim').prefix
 local trim_suffix = require('testcase.trim').suffix
-local fstat = require('testcase.fstat')
+local stat = require('testcase.stat')
 local readdir = require('testcase.readdir')
 local realpath = require('testcase.realpath')
 local pchdir = require('testcase.chdir')
@@ -59,7 +59,7 @@ local function walkdir(files, pathname, suffix)
         end
 
         local fullname = pathname .. '/' .. entry
-        local info, err = fstat(fullname)
+        local info, err = stat(fullname)
         if err then
             if err.type ~= ENOENT then
                 return err
@@ -97,7 +97,7 @@ local function getfiles(pathname, suffix)
     end
 
     local files = {}
-    local info, err = fstat(pathname)
+    local info, err = stat(pathname)
 
     if err then
         if err.type == ENOENT then
@@ -145,7 +145,7 @@ local function getstat(pathname)
     end
 
     -- luacheck: ignore err
-    local info, err = fstat(rpath, false)
+    local info, err = stat(rpath, false)
     -- failed to get stat
     if not info then
         return nil, err
