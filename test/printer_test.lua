@@ -69,6 +69,28 @@ local function test_parse_format()
     }) do
         assert.equal(printer.parse_format(v.fmt), v.nparam)
     end
+
+    -- test that the optional callback receives each conversion specifier char
+    -- and its 1-based argument offset, and that the return value is unchanged
+    local seen = {}
+    local nparam = printer.parse_format('a %s b %q c %d', function(c, offset)
+        seen[#seen + 1] = c .. offset
+    end)
+    assert.equal(nparam, 3)
+    assert.equal(table.concat(seen, ','), 's1,q2,d3')
+
+    -- test that a trailing specifier (not terminated by a space) is reported
+    seen = {}
+    printer.parse_format('%q: %s', function(c, offset)
+        seen[#seen + 1] = c .. offset
+    end)
+    assert.equal(table.concat(seen, ','), 'q1,s2')
+
+    -- test that throws an error if the callback is not a function
+    local err = assert.throws(function()
+        printer.parse_format('%s', 'not-a-function')
+    end)
+    assert.match(err, 'invalid argument #2')
 end
 
 local function test_vstringify()
@@ -89,6 +111,23 @@ local function test_vstringify()
         printer.vstringify(true, 'foo %', 'bar', 1, true, false)
     end)
     assert.match(err, "invalid ")
+
+    -- test that pre-stringifies the '%s' argument with tostring() so a
+    -- non-string value (e.g. an error table) does not break string.format and
+    -- hide the real error (matches Lua 5.3+ behavior on Lua 5.1)
+    local errtbl = setmetatable({
+        type = 'EOPNOTSUPP',
+    }, {
+        __tostring = function(self)
+            return 'errno:' .. self.type
+        end,
+    })
+    assert.equal(printer.vstringify(true, 'failed: %q: %s', '/path', errtbl),
+                 'failed: "/path": errno:EOPNOTSUPP')
+
+    -- test that a raw non-string '%s' argument (no __tostring) is also
+    -- stringified with its default representation instead of raising an error
+    assert.match(printer.vstringify(true, 'got: %s', {}), 'got: table: 0x')
 end
 
 local function test_call_printline()
