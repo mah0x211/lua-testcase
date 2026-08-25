@@ -402,6 +402,43 @@ local path, err = realpath('./foo/bar')
 
 ---
 
+## rlim, err = testcase.rlimit(resource [, cur [, max]])
+
+Gets or sets resource limits via `getrlimit(2)` / `setrlimit(2)`.
+
+```lua
+local rlimit = require('testcase.rlimit')
+
+-- get the current limits
+local rlim, err = rlimit('nofile')
+
+-- lower the soft limit to 128, leaving the hard limit unchanged
+rlim, err = rlimit('nofile', 128)
+```
+
+**Parameters**
+
+- `resource:string`: One of `as`, `core`, `cpu`, `data`, `fsize`, `locks`, `memlock`, `msgqueue`, `nice`, `nofile`, `nproc`, `rss`, `rtprio`, `rttime`, `sigpending`, `stack`.
+- `cur:integer|nil`: New soft limit. Omitted or `nil` leaves it unchanged.
+- `max:integer|nil`: New hard limit. Omitted or `nil` leaves it unchanged. At least one of `cur` / `max` must be given when setting.
+
+`RLIM_INFINITY` is represented as `-1` in both the returned table and the `cur` / `max` arguments. Note that raising a hard limit usually requires privileges and fails with `EPERM` for unprivileged processes.
+
+**Returns**
+
+- `rlim:table|nil`: Rlimit table on success (see below), `nil` on failure. After a successful set, the limits are re-read with `getrlimit(2)`, so the returned values are the actual limits which may differ from the requested ones if the kernel clamped them.
+- `err:error|nil`: Error object on failure. Resources not supported by the platform fail with `ENOSYS`.
+
+The rlimit table has the following fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `resource` | string | Resource name |
+| `cur` | integer | Soft limit (`-1` for infinity) |
+| `max` | integer | Hard limit (`-1` for infinity) |
+
+---
+
 ## testcase.select
 
 Returns a table with three utility functions for variadic argument lists.
