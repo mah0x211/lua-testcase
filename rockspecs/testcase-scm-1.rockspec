@@ -96,6 +96,13 @@ build = {
                 "$(DEP_ERROR_INCDIR)",
             },
         },
+        ["testcase.rlimit"] = {
+            sources = "src/rlimit.c",
+            incdirs = {
+                "$(DEP_ERRNO_INCDIR)",
+                "$(DEP_ERROR_INCDIR)",
+            },
+        },
         ["testcase.select"] = "src/select.c",
         ["testcase.shutdown"] = {
             sources = "src/shutdown.c",

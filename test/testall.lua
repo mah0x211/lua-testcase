@@ -13,6 +13,7 @@ for _, pathname in ipairs({
     'test/iohook_test.lua',
     'test/printer_test.lua',
     'test/registry_test.lua',
+    'test/rlimit_test.lua',
     'test/runner_test.lua',
     'test/shutdown_test.lua',
     'test/socketpair_test.lua',
