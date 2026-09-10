@@ -17,11 +17,15 @@ luarocks install testcase
 testcase - a small helper tool to run the test files
 
 Usage:
-  testcase [--coverage] [--checkall] <pathname>
+  testcase [--coverage] [--checkall] <pathname>...
 
 Options:
   --coverage    do code coverage analysis with `luacov`
   --checkall    any file with a `.lua` extension will be evaluated as a test file.
+
+Arguments:
+  <pathname>    one or more test files and/or directories.
+                a directory is searched for `_test.lua` files.
 ```
 
 ### Assertion module
@@ -33,7 +37,7 @@ The original assert function will be renamed to `_G._assert` and the https://git
 
 describe a test like a [example/example_test.lua](example/example_test.lua), and execute the installed `testcase ./example/` command.
 
-the `testcase` command searches for a test file with the suffix `_test.lua` in the specified `pathname` and executes the test file. if the `pathname` is a file, the `testcase` command will execute the test file.
+the `testcase` command searches for a test file with the suffix `_test.lua` in each specified `pathname` and executes the test files. if a `pathname` is a file, the `testcase` command executes that file. you can specify more than one file and/or directory, and duplicate files collected from overlapping pathnames are executed only once.
 
 the test file must be named with the suffix `_test.lua`. if it does not have this suffix, it will be executed as a test file for [testing private functions](#testing-private-functions).
 
