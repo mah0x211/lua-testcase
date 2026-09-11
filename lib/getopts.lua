@@ -24,15 +24,21 @@ local match = string.match
 local ipairs = ipairs
 
 local function getopts(arg)
-    local opts = {}
+    local opts = {
+        help = false,
+        coverage = false,
+        checkall = false,
+    }
 
     for _, s in ipairs(arg) do
         if sub(s, 1, 1) == '-' then
-            local k, v = match(s, '^([^=]*)=?(.*)$')
-            if not v or v == '' then
-                opts[k] = true
-            else
-                opts[k] = v
+            local k = match(s, '^([^=]*)')
+            if k == '--help' then
+                opts.help = true
+            elseif k == '--coverage' then
+                opts.coverage = true
+            elseif k == '--checkall' then
+                opts.checkall = true
             end
         else
             opts[#opts + 1] = s

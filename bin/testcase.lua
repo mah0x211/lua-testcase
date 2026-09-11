@@ -63,11 +63,11 @@ end
 --- @return table opts
 local function check_opts()
     local opts = getopts(ARGV)
-    if opts['--help'] then
+    if opts.help then
         exit(0, USAGE)
     elseif not opts[1] then
         exit(-1, USAGE)
-    elseif opts['--coverage'] then
+    elseif opts.coverage then
         local ok, err = pcall(require, 'luacov')
         if not ok then
             exit(-1, 'failed to load luacov module: %s', err)
@@ -117,7 +117,7 @@ local function get_files(opts)
     local pathnames = get_pathnames(opts)
     local files = {}
     local seen = {}
-    local suffix = opts['--checkall'] and '.lua'
+    local suffix = opts.checkall and '.lua' or nil
 
     for _, pathname in ipairs(pathnames) do
         local list, err = getfiles(pathname, suffix)
