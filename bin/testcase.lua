@@ -36,17 +36,18 @@ local runner = require('testcase.runner')
 local ENOENT = require('errno').ENOENT
 local ARGV = _G.arg
 local HEADLINE = string.rep('=', 80)
-local USAGE = [[
+local USAGE = [=[
 testcase - a small helper tool to run the test files
 
 Usage:
-  testcase [--help] [--coverage] [--checkall] <pathname>...
+  testcase [--help] [--coverage] [--checkall] [--testcase=<name>[,...]] <pathname>...
 
 Options:
-  --help        show this help message and exit
-  --coverage    do code coverage analysis with `luacov`
-  --checkall    any file with a `.lua` extension will be evaluated as a test file
-]]
+  --help               show this help message and exit
+  --coverage           do code coverage analysis with `luacov`
+  --checkall           any file with a `.lua` extension will be evaluated as a test file
+  --testcase=<name>    run only the named test case; accepts comma-separated names
+]=]
 
 --- exit with code and message
 --- @param code number
@@ -62,15 +63,18 @@ end
 --- Check command line options and return options table
 --- @return table opts
 local function check_opts()
-    local opts = getopts(ARGV)
-    if opts['--help'] then
+    local opts, err = getopts(ARGV)
+
+    if not opts then
+        exit(-1, err)
+    elseif opts.help then
         exit(0, USAGE)
     elseif not opts[1] then
         exit(-1, USAGE)
-    elseif opts['--coverage'] then
-        local ok, err = pcall(require, 'luacov')
+    elseif opts.coverage then
+        local ok, loaderr = pcall(require, 'luacov')
         if not ok then
-            exit(-1, 'failed to load luacov module: %s', err)
+            exit(-1, 'failed to load luacov module: %s', loaderr)
         end
     end
 
@@ -117,7 +121,7 @@ local function get_files(opts)
     local pathnames = get_pathnames(opts)
     local files = {}
     local seen = {}
-    local suffix = opts['--checkall'] and '.lua'
+    local suffix = opts.checkall and '.lua' or nil
 
     for _, pathname in ipairs(pathnames) do
         local list, err = getfiles(pathname, suffix)
@@ -156,6 +160,22 @@ local function loadfiles(files)
     return errfiles
 end
 
+--- report_load_errors reports errors raised while loading test files
+--- @param errfiles table<number, table<string, string>>
+local function report_load_errors(errfiles)
+    if #errfiles == 0 then
+        return
+    end
+
+    print('#### %d test files failed to load\n', #errfiles)
+    for _, v in ipairs(errfiles) do
+        print('- %s', v[1])
+        printCode('%s', v[2])
+        print('')
+    end
+    print('\n')
+end
+
 do
     local opts = check_opts()
     local files = get_files(opts)
@@ -174,15 +194,15 @@ do
         print('- ', src.name, ' has `', #src.tests, '` test cases')
     end
     -- print error files
-    if #errfiles > 0 then
-        print('\nFailed to load %d test files.\n', #errfiles)
-        for _, v in ipairs(errfiles) do
-            print('- %s', v[1])
-        end
+    if #errfiles > 0 and #list == 0 then
+        print('')
+        report_load_errors(errfiles)
+        exit(-1)
     end
     runner.unblock()
 
-    local ok, err, nsuccess, nfailure, t, errors = runner.run()
+    local ok, err, nsuccess, nfailure, t, errors = runner.run(list,
+                                                              opts.testcase)
     if not ok then
         exit(-1, 'failed to runner.run(): ', err)
     end
@@ -206,12 +226,7 @@ do
 
     -- print error files with error message
     if #errfiles > 0 then
-        print('#### %d test files failed to load\n', #errfiles)
-        for _, v in ipairs(errfiles) do
-            print('- %s', v[1])
-            printCode('%s', v[2])
-        end
-        print('\n')
+        report_load_errors(errfiles)
     end
 
     -- exit failure

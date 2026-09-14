@@ -8,6 +8,7 @@ local open = io.open
 local execute = os.execute
 local remove = os.remove
 local tmpname = os.tmpname
+local realpath = require('testcase.realpath')
 
 local function shell_quote(s)
     return "'" .. gsub(s, "'", "'\\''") .. "'"
@@ -34,7 +35,25 @@ print(%q)
 function testcase.%s()
     print(%q)
 end
-]], marker .. '_LOAD', name, marker .. '_RUN'))
+
+function testcase.%s_extra()
+    print(%q)
+end
+
+function testcase.shared()
+    print(%q)
+end
+
+function testcase.before_all()
+    print(%q)
+end
+
+function testcase.after_all()
+    print(%q)
+end
+]], marker .. '_LOAD', name, marker .. '_RUN', name,
+               marker .. '_EXTRA_RUN', marker .. '_SHARED_RUN',
+               marker .. '_BEFORE_ALL', marker .. '_AFTER_ALL'))
 end
 
 local function write_inline_test(pathname, name, marker)
@@ -48,6 +67,12 @@ function testcase.%s()
     print(%q)
 end
 ]], marker .. '_LOAD', name, marker .. '_RUN'))
+end
+
+local function write_broken_test(pathname)
+    write_file(pathname, [[
+error('CLI_BROKEN_LOAD_ERROR')
+]])
 end
 
 local function count_occurrences(s, pattern)
@@ -129,6 +154,133 @@ local function test_checkall(output_file, alpha_dir, beta_dir)
     assert.equal(count_occurrences(output, 'CLI_PLAIN_MARKER_RUN'), 1)
 end
 
+local function test_load_failure_without_runnable_files(output_file,
+                                                        broken_file)
+    local ok, output =
+        run_cli(output_file, '--testcase=missing', broken_file)
+    assert(not ok, 'test file load failure succeeded')
+    assert.match(output, 'CLI_BROKEN_LOAD_ERROR')
+    assert.equal(count_occurrences(output, '### Total:'), 0)
+    assert.equal(count_occurrences(output, 'not found in any test file'), 0)
+end
+
+local function test_testcase_exact(output_file, alpha_file, beta_file)
+    local ok, output =
+        run_cli(output_file, '--testcase=alpha', alpha_file, beta_file)
+    assert(ok, output)
+    assert_markers(output, 1, 0)
+    assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_EXTRA_RUN'), 0)
+    assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_SHARED_RUN'), 0)
+    assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_BEFORE_ALL'), 1)
+    assert.equal(count_occurrences(output, 'CLI_BETA_MARKER_BEFORE_ALL'), 0)
+    assert.equal(count_occurrences(output,
+                                   'Total: 6 test cases in 2 files.'), 1)
+    assert.equal(count_occurrences(output,
+                                   format('testcase %q not found in %s',
+                                          'alpha', assert(realpath(beta_file)))),
+                 1)
+    assert.equal(count_occurrences(output, 'not found in any test file'), 0)
+end
+
+local function test_testcase_list(output_file, alpha_file, beta_file)
+    local ok, output =
+        run_cli(output_file, '--testcase=alpha,beta', alpha_file, beta_file)
+    assert(ok, output)
+    assert_markers(output, 1, 1)
+    assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_EXTRA_RUN'), 0)
+    assert.equal(count_occurrences(output, 'CLI_BETA_MARKER_EXTRA_RUN'), 0)
+    assert.equal(count_occurrences(output, 'not found in any test file'), 0)
+end
+
+local function test_testcase_in_later_file(output_file, alpha_file,
+                                            beta_file)
+    local ok, output =
+        run_cli(output_file, '--testcase=beta', alpha_file, beta_file)
+    assert(ok, output)
+    assert_markers(output, 0, 1)
+    assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_BEFORE_ALL'), 0)
+    assert.equal(count_occurrences(output, 'CLI_BETA_MARKER_BEFORE_ALL'), 1)
+    assert.equal(count_occurrences(output,
+                                   format('testcase %q not found in %s',
+                                          'beta', assert(realpath(alpha_file)))),
+                 1)
+end
+
+local function test_testcase_in_multiple_files(output_file, alpha_file,
+                                                beta_file)
+    local ok, output =
+        run_cli(output_file, '--testcase=shared', alpha_file, beta_file)
+    assert(ok, output)
+    assert_markers(output, 0, 0)
+    assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_SHARED_RUN'), 1)
+    assert.equal(count_occurrences(output, 'CLI_BETA_MARKER_SHARED_RUN'), 1)
+end
+
+local function test_duplicate_testcase_name(output_file, alpha_file,
+                                            beta_file)
+    local ok, output =
+        run_cli(output_file, '--testcase=alpha,alpha', alpha_file, beta_file)
+    assert(ok, output)
+    assert_markers(output, 1, 0)
+    assert.equal(count_occurrences(output,
+                                   format('testcase %q not found in %s',
+                                          'alpha', assert(realpath(beta_file)))),
+                 1)
+end
+
+local function test_missing_testcase(output_file, alpha_file, beta_file)
+    local ok, output = run_cli(output_file, '--testcase=alpha,missing',
+                               alpha_file, beta_file)
+    assert(not ok, 'globally missing test case succeeded')
+    assert_markers(output, 0, 0)
+    assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_BEFORE_ALL'), 0)
+    assert.equal(count_occurrences(output, 'CLI_BETA_MARKER_BEFORE_ALL'), 0)
+    local missing_alpha = format('testcase %q not found in %s', 'missing',
+                                 assert(realpath(alpha_file)))
+    local alpha_beta = format('testcase %q not found in %s', 'alpha',
+                              assert(realpath(beta_file)))
+    local missing_beta = format('testcase %q not found in %s', 'missing',
+                                assert(realpath(beta_file)))
+    local missing_global = 'testcase "missing" not found in any test file'
+    assert.equal(count_occurrences(output, missing_alpha), 1)
+    assert.equal(count_occurrences(output, alpha_beta), 1)
+    assert.equal(count_occurrences(output, missing_beta), 1)
+    assert.equal(count_occurrences(output, missing_global), 1)
+
+    local missing_alpha_pos = assert(find(output, missing_alpha, 1, true))
+    local alpha_beta_pos = assert(find(output, alpha_beta, 1, true))
+    local missing_beta_pos = assert(find(output, missing_beta, 1, true))
+    local missing_global_pos = assert(find(output, missing_global, 1, true))
+    assert(missing_alpha_pos < alpha_beta_pos)
+    assert(alpha_beta_pos < missing_beta_pos)
+    assert(missing_beta_pos < missing_global_pos)
+end
+
+local function test_duplicate_testcase_option(output_file, alpha_file,
+                                              beta_file)
+    local ok, output = run_cli(output_file, '--testcase=alpha',
+                               '--testcase=beta', alpha_file, beta_file)
+    assert(not ok, 'duplicate --testcase option succeeded')
+    assert.match(output, 'must not be specified more than once')
+    assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_LOAD'), 0)
+    assert.equal(count_occurrences(output, 'CLI_BETA_MARKER_LOAD'), 0)
+end
+
+local function test_invalid_testcase_value(output_file, alpha_file)
+    for _, option in ipairs({
+        '--testcase',
+        '--testcase=',
+        '--testcase=,alpha',
+        '--testcase=alpha,',
+        '--testcase=alpha,,beta',
+    }) do
+        local ok, output = run_cli(output_file, option, alpha_file)
+        assert(not ok, 'invalid --testcase value succeeded: ' .. option)
+        assert.match(output, 'requires one or more test case names')
+        assert.equal(count_occurrences(output, 'CLI_ALPHA_MARKER_LOAD'), 0)
+    end
+end
+
 local function test_duplicate_path(output_file, alpha_file)
     local ok, output = run_cli(output_file, alpha_file, alpha_file)
     assert(not ok, 'duplicate pathname succeeded')
@@ -163,6 +315,7 @@ local function test_cli()
     local alpha_alias = base .. '/alpha_alias_test.lua'
     local beta_file = beta_dir .. '/beta_test.lua'
     local plain_file = alpha_dir .. '/plain.lua'
+    local broken_file = base .. '/broken_test.lua'
     local missing_file = base .. '/missing_test.lua'
     local output_file = base .. '/output.log'
 
@@ -174,12 +327,22 @@ local function test_cli()
         write_test(alpha_file, 'alpha', 'CLI_ALPHA_MARKER')
         write_test(beta_file, 'beta', 'CLI_BETA_MARKER')
         write_inline_test(plain_file, 'plain', 'CLI_PLAIN_MARKER')
+        write_broken_test(broken_file)
 
         test_single_path(output_file, alpha_file)
         test_multiple_files(output_file, alpha_file, beta_file)
         test_multiple_directories(output_file, alpha_dir, beta_dir)
         test_overlapping_paths(output_file, alpha_dir, alpha_file, beta_file)
         test_checkall(output_file, alpha_dir, beta_dir)
+        test_load_failure_without_runnable_files(output_file, broken_file)
+        test_testcase_exact(output_file, alpha_file, beta_file)
+        test_testcase_list(output_file, alpha_file, beta_file)
+        test_testcase_in_later_file(output_file, alpha_file, beta_file)
+        test_testcase_in_multiple_files(output_file, alpha_file, beta_file)
+        test_duplicate_testcase_name(output_file, alpha_file, beta_file)
+        test_missing_testcase(output_file, alpha_file, beta_file)
+        test_duplicate_testcase_option(output_file, alpha_file, beta_file)
+        test_invalid_testcase_value(output_file, alpha_file)
         test_duplicate_path(output_file, alpha_file)
         test_duplicate_canonical_path(output_file, alpha_file, alpha_spelling)
 
@@ -196,6 +359,7 @@ local function test_cli()
         alpha_file,
         beta_file,
         plain_file,
+        broken_file,
         alpha_dir,
         beta_dir,
         base,

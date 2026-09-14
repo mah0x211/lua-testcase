@@ -20,19 +20,81 @@
 -- THE SOFTWARE.
 --
 local sub = string.sub
+local find = string.find
 local match = string.match
 local ipairs = ipairs
 
+--- @class testcase.options
+--- @field help boolean
+--- @field coverage boolean
+--- @field checkall boolean
+--- @field testcase string[]
+
+--- parse_testcase parses the value of the "--testcase" option
+--- @param value string
+--- @return table? names
+--- @return string? error
+local function parse_testcase(value)
+    if value == '' then
+        return nil, 'option "--testcase" requires one or more test case names'
+    end
+
+    local names = {}
+    local seen = {}
+    local offset = 1
+
+    while true do
+        local comma = find(value, ',', offset, true)
+        local name = sub(value, offset, comma and comma - 1)
+        if name == '' then
+            return nil,
+                   'option "--testcase" requires one or more test case names'
+        elseif not seen[name] then
+            seen[name] = true
+            names[#names + 1] = name
+        end
+
+        if not comma then
+            return names
+        end
+        offset = comma + 1
+    end
+end
+
+--- getopts parses command line options
+--- @param arg table command line arguments
+--- @return testcase.options? opts
+--- @return string? error
 local function getopts(arg)
-    local opts = {}
+    local opts = {
+        help = false,
+        coverage = false,
+        checkall = false,
+        testcase = {},
+    }
+    local has_testcase = false
 
     for _, s in ipairs(arg) do
         if sub(s, 1, 1) == '-' then
             local k, v = match(s, '^([^=]*)=?(.*)$')
-            if not v or v == '' then
-                opts[k] = true
-            else
-                opts[k] = v
+            if k == '--help' then
+                opts.help = true
+            elseif k == '--coverage' then
+                opts.coverage = true
+            elseif k == '--checkall' then
+                opts.checkall = true
+            elseif k == '--testcase' then
+                if has_testcase then
+                    return nil,
+                           'option "--testcase" must not be specified more than once'
+                end
+                has_testcase = true
+
+                local names, err = parse_testcase(v)
+                if not names then
+                    return nil, err
+                end
+                opts.testcase = names
             end
         else
             opts[#opts + 1] = s

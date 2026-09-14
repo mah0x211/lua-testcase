@@ -16,6 +16,7 @@ local function test_runner()
         local before_all_error = false
         local before_each_error = false
         local after_each_error = false
+        local after_all_error = true
         local before_all = function()
             calls.before_all = 1 + (calls.before_all or 0)
             times.before_all = timer:elapsed()
@@ -41,7 +42,9 @@ local function test_runner()
             calls.after_all = 1 + (calls.after_all or 0)
             times.after_all = timer:elapsed()
             print('call after_all')
-            error('failed to after_all')
+            if after_all_error then
+                error('failed to after_all')
+            end
         end
         local foofn = function()
             calls.foofn = 1 + (calls.foofn or 0)
@@ -70,13 +73,14 @@ local function test_runner()
             local err = registry.add(name, func)
             assert(not err, err)
         end
+        local list = registry.getlist()
 
         -- test that runner cannot run while blocking
         runner.block()
         timer:start()
         calls = {}
         times = {}
-        local ok, err, nsuccess, nfailures, t = runner.run()
+        local ok, err, nsuccess, nfailures, t = runner.run(list)
         assert(not ok, 'runner ran')
         assert.is_nil(nsuccess)
         assert.is_nil(nfailures)
@@ -85,12 +89,12 @@ local function test_runner()
         assert.empty(times)
         assert.empty(calls)
 
-        -- test that runner runs after unblocking
+        -- test that an empty selection runs all tests after unblocking
         runner.unblock()
         timer:start()
         calls = {}
         times = {}
-        ok, err, nsuccess, nfailures, t = runner.run()
+        ok, err, nsuccess, nfailures, t = runner.run(list, {})
         assert(ok, 'runner did not run')
         assert.equal(nsuccess, 2)
         assert.equal(nfailures, 1)
@@ -112,11 +116,32 @@ local function test_runner()
         assert.less(times.bazfn, times.after_each)
         assert.less(times.after_each, times.after_all)
 
+        -- test that runner executes only selected test cases
+        calls = {}
+        times = {}
+        after_all_error = false
+        ok, err, nsuccess, nfailures, t = runner.run(list, {
+            'foo',
+        })
+        after_all_error = true
+        assert(ok, 'runner did not run')
+        assert.equal(nsuccess, 1)
+        assert.equal(nfailures, 0)
+        assert(t, 'runner did not returns the timer')
+        assert(not err, 'runner returns an error')
+        assert.equal(calls, {
+            before_all = 1,
+            before_each = 1,
+            foofn = 1,
+            after_each = 1,
+            after_all = 1,
+        })
+
         -- test that stops all tests when error occurs in before_all
         calls = {}
         times = {}
         before_all_error = true
-        ok, err, nsuccess, nfailures, t = runner.run()
+        ok, err, nsuccess, nfailures, t = runner.run(list)
         before_all_error = false
         assert(ok, 'runner did not run')
         assert.equal(nsuccess, 0)
@@ -131,7 +156,7 @@ local function test_runner()
         calls = {}
         times = {}
         before_each_error = true
-        ok, err, nsuccess, nfailures, t = runner.run()
+        ok, err, nsuccess, nfailures, t = runner.run(list)
         before_each_error = false
         assert(ok, 'runner did not run')
         assert.equal(nsuccess, 0)
@@ -148,7 +173,7 @@ local function test_runner()
         calls = {}
         times = {}
         after_each_error = true
-        ok, err, nsuccess, nfailures, t = runner.run()
+        ok, err, nsuccess, nfailures, t = runner.run(list)
         after_each_error = false
         assert(ok, 'runner did not run')
         assert.equal(nsuccess, 1)
@@ -162,6 +187,20 @@ local function test_runner()
             after_all = 1,
             foofn = 1,
         })
+
+        -- test that a globally missing test case prevents test execution
+        calls = {}
+        times = {}
+        ok, err, nsuccess, nfailures, t = runner.run(list, {
+            'foo',
+            'missing',
+        })
+        assert(not ok, 'runner did not report a missing test case')
+        assert.equal(err, 'specified testcases not found')
+        assert.is_nil(nsuccess)
+        assert.is_nil(nfailures)
+        assert.is_nil(t)
+        assert.empty(calls)
     end)
 
     fs.chdir()

@@ -1,9 +1,12 @@
 local exit = os.exit
 local dofile = dofile
+local flush = io.flush
+local format = string.format
+local write = io.write
 local getpid = require('testcase.getpid')
 local PID = getpid()
 
-for _, pathname in ipairs({
+local TESTFILES = {
     'test/cli_test.lua',
     'test/close_test.lua',
     'test/eval_test.lua',
@@ -21,7 +24,11 @@ for _, pathname in ipairs({
     'test/stat_test.lua',
     'test/testcase_test.lua',
     'test/timer_test.lua',
-}) do
+}
+
+for i, pathname in ipairs(TESTFILES) do
+    write(format('[%d/%d] %s\n', i, #TESTFILES, pathname))
+    flush()
     dofile(pathname)
     if getpid() ~= PID then
         exit(0)
