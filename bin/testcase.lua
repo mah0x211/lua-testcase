@@ -156,6 +156,22 @@ local function loadfiles(files)
     return errfiles
 end
 
+--- report_load_errors reports errors raised while loading test files
+--- @param errfiles table<number, table<string, string>>
+local function report_load_errors(errfiles)
+    if #errfiles == 0 then
+        return
+    end
+
+    print('#### %d test files failed to load\n', #errfiles)
+    for _, v in ipairs(errfiles) do
+        print('- %s', v[1])
+        printCode('%s', v[2])
+        print('')
+    end
+    print('\n')
+end
+
 do
     local opts = check_opts()
     local files = get_files(opts)
@@ -174,11 +190,10 @@ do
         print('- ', src.name, ' has `', #src.tests, '` test cases')
     end
     -- print error files
-    if #errfiles > 0 then
-        print('\nFailed to load %d test files.\n', #errfiles)
-        for _, v in ipairs(errfiles) do
-            print('- %s', v[1])
-        end
+    if #errfiles > 0 and #list == 0 then
+        print('')
+        report_load_errors(errfiles)
+        exit(-1)
     end
     runner.unblock()
 
@@ -206,12 +221,7 @@ do
 
     -- print error files with error message
     if #errfiles > 0 then
-        print('#### %d test files failed to load\n', #errfiles)
-        for _, v in ipairs(errfiles) do
-            print('- %s', v[1])
-            printCode('%s', v[2])
-        end
-        print('\n')
+        report_load_errors(errfiles)
     end
 
     -- exit failure
