@@ -17,15 +17,17 @@ luarocks install testcase
 testcase - a small helper tool to run the test files
 
 Usage:
-  testcase [--coverage] [--checkall] <pathname>...
+  testcase [--coverage] [--checkall] [--testcase=<name>,...] <pathname>...
 
 Options:
-  --coverage    do code coverage analysis with `luacov`
-  --checkall    any file with a `.lua` extension will be evaluated as a test file.
+  --coverage           do code coverage analysis with `luacov`
+  --checkall           any file with a `.lua` extension will be evaluated as a test file.
+  --testcase=<name>    run only the test case(s) with the given name(s).
+                       comma-separated and may be specified once. if omitted, all test cases are run.
 
 Arguments:
-  <pathname>    one or more test files and/or directories.
-                a directory is searched for `_test.lua` files.
+  <pathname>           one or more test files and/or directories.
+                       a directory is searched for `_test.lua` files.
 ```
 
 ### Assertion module
@@ -38,6 +40,8 @@ The original assert function will be renamed to `_G._assert` and the https://git
 describe a test like a [example/example_test.lua](example/example_test.lua), and execute the installed `testcase ./example/` command.
 
 the `testcase` command searches for a test file with the suffix `_test.lua` in each specified `pathname` and executes the test files. if a `pathname` is a file, the `testcase` command executes that file. you can specify more than one file and/or directory, and duplicate files collected from overlapping pathnames are executed only once.
+
+if the `--testcase=<name>,...` option is given, only the test cases whose name exactly matches one of the given names are executed. the names are comma-separated, and the option may be specified only once. the names are matched across all loaded test files, so a name defined in multiple files runs in each of them. a missing name is reported for each loaded test file that does not define it. if any given name matches no test case in any loaded file, the `testcase` command reports the unmatched name(s) and exits with a non-zero status.
 
 the test file must be named with the suffix `_test.lua`. if it does not have this suffix, it will be executed as a test file for [testing private functions](#testing-private-functions).
 

@@ -36,17 +36,18 @@ local runner = require('testcase.runner')
 local ENOENT = require('errno').ENOENT
 local ARGV = _G.arg
 local HEADLINE = string.rep('=', 80)
-local USAGE = [[
+local USAGE = [=[
 testcase - a small helper tool to run the test files
 
 Usage:
-  testcase [--help] [--coverage] [--checkall] <pathname>...
+  testcase [--help] [--coverage] [--checkall] [--testcase=<name>[,...]] <pathname>...
 
 Options:
-  --help        show this help message and exit
-  --coverage    do code coverage analysis with `luacov`
-  --checkall    any file with a `.lua` extension will be evaluated as a test file
-]]
+  --help               show this help message and exit
+  --coverage           do code coverage analysis with `luacov`
+  --checkall           any file with a `.lua` extension will be evaluated as a test file
+  --testcase=<name>    run only the named test case; accepts comma-separated names
+]=]
 
 --- exit with code and message
 --- @param code number
@@ -62,15 +63,18 @@ end
 --- Check command line options and return options table
 --- @return table opts
 local function check_opts()
-    local opts = getopts(ARGV)
-    if opts.help then
+    local opts, err = getopts(ARGV)
+
+    if not opts then
+        exit(-1, err)
+    elseif opts.help then
         exit(0, USAGE)
     elseif not opts[1] then
         exit(-1, USAGE)
     elseif opts.coverage then
-        local ok, err = pcall(require, 'luacov')
+        local ok, loaderr = pcall(require, 'luacov')
         if not ok then
-            exit(-1, 'failed to load luacov module: %s', err)
+            exit(-1, 'failed to load luacov module: %s', loaderr)
         end
     end
 
@@ -197,7 +201,8 @@ do
     end
     runner.unblock()
 
-    local ok, err, nsuccess, nfailure, t, errors = runner.run()
+    local ok, err, nsuccess, nfailure, t, errors = runner.run(list,
+                                                              opts.testcase)
     if not ok then
         exit(-1, 'failed to runner.run(): ', err)
     end

@@ -27,7 +27,6 @@ local traceback = debug.traceback
 local xpcall = require('testcase.xpcall')
 local getcwd = require('testcase.getcwd')
 local chdir = require('testcase.filesystem').chdir
-local registry = require('testcase.registry')
 local timer = require('testcase.timer')
 local getpid = require('testcase.getpid')
 local printer = require('testcase.printer')
@@ -210,6 +209,49 @@ local function run_file(t, src)
     return nsuccess, errs
 end
 
+--- Select test cases from registered test sources
+--- @param list table[] registered test sources
+--- @param testcases string[] selected test case names
+--- @return table[] newlist selected test sources
+--- @return table<string, number> targets
+local function select_testcases(list, testcases)
+    local targets = {}
+    for _, name in ipairs(testcases) do
+        targets[name] = 0
+    end
+
+    local newlist = {}
+    for _, src in ipairs(list) do
+        local tests = {}
+        local found = {}
+        for _, test in ipairs(src.tests) do
+            if targets[test.name] then
+                tests[#tests + 1] = test
+                targets[test.name] = targets[test.name] + 1
+                found[test.name] = true
+            end
+        end
+
+        for _, name in ipairs(testcases) do
+            if not found[name] then
+                print('testcase %q not found in %s', name, src.name)
+            end
+        end
+
+        -- update the source with the selected tests
+        if #tests > 0 then
+            local newsrc = {}
+            for k, v in pairs(src) do
+                newsrc[k] = v
+            end
+            newsrc.tests = tests
+            newlist[#newlist + 1] = newsrc
+        end
+    end
+
+    return newlist, targets
+end
+
 local DO_NOT_RUN = false
 
 local function block()
@@ -221,23 +263,42 @@ local function unblock()
 end
 
 --- run registered test funcs
+---@param list table[] registered test sources
+---@param testcases string[]? selected test case names
 ---@return boolean ok
 ---@return string? err
 ---@return number? nsuccess
 ---@return number? nfailures
 ---@return userdata? timer
 ---@return table[]? errors
-local function run()
+local function run(list, testcases)
     if DO_NOT_RUN then
         return false, 'cannot run test cases while blocking'
     end
 
-    local list, ntest = registry.getlist()
+    if testcases and #testcases > 0 then
+        local newlist, targets = select_testcases(list, testcases)
+        local notfound = false
+        list = newlist
+        for _, name in ipairs(testcases) do
+            if targets[name] == 0 then
+                print('testcase %q not found in any test file', name)
+                notfound = true
+            end
+        end
+        if notfound then
+            return false, 'specified testcases not found'
+        end
+    end
+
     local t = timer.new()
     local nsuccess = 0
+    local ntest = 0
     local errors = {}
     local nerrors = 0
     for _, src in ipairs(list) do
+        ntest = ntest + #src.tests
+
         -- move to test file directory
         local err = chdir()
         assert(not err, err)
