@@ -40,7 +40,7 @@ local USAGE = [[
 testcase - a small helper tool to run the test files
 
 Usage:
-  testcase [--help] [--coverage] [--checkall] <pathname>
+  testcase [--help] [--coverage] [--checkall] <pathname>...
 
 Options:
   --help        show this help message and exit
@@ -91,15 +91,49 @@ local function check_pathname(pathname)
     return path
 end
 
+--- Get and validate pathnames from command line arguments
+--- @param opts table options
+--- @return table pathnames
+local function get_pathnames(opts)
+    local pathnames = {}
+    local seen = {}
+
+    for _, pathname in ipairs(opts) do
+        local path = check_pathname(pathname)
+        if seen[path] then
+            exit(-1, 'duplicate pathname %q', pathname)
+        end
+        seen[path] = true
+        pathnames[#pathnames + 1] = path
+    end
+
+    return pathnames
+end
+
 --- Get test files from the pathname
 --- @param opts table options
 --- @return table files
 local function get_files(opts)
-    local pathname = check_pathname(opts[1])
-    local files, err = getfiles(pathname, opts['--checkall'] and '.lua')
-    if err then
-        exit(-1, 'failed to get test files from %q: %s', pathname, err)
+    local pathnames = get_pathnames(opts)
+    local files = {}
+    local seen = {}
+    local suffix = opts['--checkall'] and '.lua'
+
+    for _, pathname in ipairs(pathnames) do
+        local list, err = getfiles(pathname, suffix)
+        if err then
+            exit(-1, 'failed to get test files from %q: %s', pathname, err)
+        end
+
+        for _, filename in ipairs(list) do
+            local path = check_pathname(filename)
+            if not seen[path] then
+                seen[path] = true
+                files[#files + 1] = filename
+            end
+        end
     end
+
     return files
 end
 
