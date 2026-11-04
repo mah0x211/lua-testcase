@@ -149,8 +149,10 @@ local function run_file(t, src)
         local ok, err = run_setup_teadown(t, 'before_all', src.before_all)
         if not ok then
             return 0, {
-                name = 'before_all',
-                error = err,
+                {
+                    name = 'before_all',
+                    error = err,
+                },
             }
         end
     end

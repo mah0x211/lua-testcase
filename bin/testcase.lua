@@ -230,7 +230,7 @@ do
     end
 
     -- exit failure
-    if nfailure > 0 or #errfiles > 0 then
+    if nfailure > 0 or errors.count > 0 or #errfiles > 0 then
         exit(-1)
     end
 end
