@@ -8,6 +8,7 @@ local PID = getpid()
 
 local TESTFILES = {
     'test/cli_test.lua',
+    'test/cli_hooks_test.lua',
     'test/close_test.lua',
     'test/eval_test.lua',
     'test/exit_test.lua',

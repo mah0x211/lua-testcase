@@ -207,4 +207,51 @@ local function test_runner()
     assert(ok, err)
 end
 
+local function test_hook_errors()
+    local runner = require('testcase.runner')
+
+    for _, name in ipairs({
+        'before_all',
+        'before_each',
+        'after_each',
+        'after_all',
+    }) do
+        for ntest = 0, 1 do
+            local src = {
+                name = 'hook_errors',
+                dirname = '.',
+                tests = {},
+            }
+            if ntest > 0 then
+                src.tests[1] = {
+                    name = 'pass',
+                    func = function()
+                    end,
+                }
+            end
+            src[name] = function()
+                error('HOOK_ERROR_' .. name)
+            end
+
+            local ok, err, nsuccess, nfailure, _, errors = runner.run({src})
+            local called = ntest > 0 or name == 'before_all' or
+                               name == 'after_all'
+            local blocked = name == 'before_all' or name == 'before_each'
+            assert.is_true(ok)
+            assert.is_nil(err)
+            assert.equal(nsuccess, blocked and 0 or ntest)
+            assert.equal(nfailure, blocked and ntest or 0)
+            assert.equal(errors.count, called and 1 or 0)
+            assert.equal(#errors, called and 1 or 0)
+            if called then
+                assert.equal(errors[1].name, src.name)
+                assert.equal(#errors[1].errors, 1)
+                assert.equal(errors[1].errors[1].name, name)
+                assert.match(errors[1].errors[1].error, 'HOOK_ERROR_' .. name)
+            end
+        end
+    end
+end
+
 test_runner()
+test_hook_errors()
