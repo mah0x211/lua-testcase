@@ -29,8 +29,7 @@ static int xpcall_lua(lua_State *L)
     luaL_checktype(L, 2, LUA_TFUNCTION);
     lua_settop(L, 2);
 
-    lua_pushvalue(L, 1);
-    lua_remove(L, 1);
+    lua_insert(L, 1);
     switch (lua_pcall(L, 0, 0, 1)) {
     case 0:
         lua_pushboolean(L, 1);
@@ -42,8 +41,8 @@ static int xpcall_lua(lua_State *L)
     // case LUA_ERRERR:
     default:
         lua_pushboolean(L, 0);
-        lua_insert(L, 1);
-        lua_call(L, 1, 1);
+        // Keep the message handler below the two returned values.
+        lua_insert(L, 2);
         return 2;
     }
 }
