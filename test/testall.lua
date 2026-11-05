@@ -25,6 +25,7 @@ local TESTFILES = {
     'test/stat_test.lua',
     'test/testcase_test.lua',
     'test/timer_test.lua',
+    'test/xpcall_test.lua',
 }
 
 for i, pathname in ipairs(TESTFILES) do
